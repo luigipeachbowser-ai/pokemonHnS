@@ -734,10 +734,9 @@ u8 GetMostSuitableMonToSwitchInto(void)
                 ModulateByTypeEffectiveness(gBattleMons[opposingBattler].type1, type1, type2, &typeDmg);
                 ModulateByTypeEffectiveness(gBattleMons[opposingBattler].type2, type1, type2, &typeDmg);
 
-                /* Possible bug: this comparison gives the type that takes the most damage, when
-                a "good" AI would want to select the type that takes the least damage. Unknown if this
-                is a legitimate mistake or if it's an intentional, if weird, design choice */
-                if (bestDmg < typeDmg)
+                // FIXED: Select the type that takes the LEAST damage (better defensive matchup)
+                // Original code was selecting pokemon that took MORE damage, which was clearly wrong
+                if (bestDmg > typeDmg) // Changed from < to > for correct logic
                 {
                     bestDmg = typeDmg;
                     bestMonId = i;

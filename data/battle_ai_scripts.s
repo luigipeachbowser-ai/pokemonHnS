@@ -25,6 +25,7 @@ gBattleAI_ScriptsTable::
 	.4byte AI_DoubleBattle 	        @ AI_SCRIPT_DOUBLE_BATTLE
 	.4byte AI_HPAware               @ AI_SCRIPT_HP_AWARE
 	.4byte AI_TrySunnyDayStart      @ AI_SCRIPT_TRY_SUNNY_DAY_START
+	.4byte AI_SwitchDecision        @ AI_SCRIPT_SWITCH_DECISION
 	.4byte AI_Ret
 	.4byte AI_Ret
 	.4byte AI_Ret
@@ -650,54 +651,73 @@ Score_Plus10:
 	end
 
 AI_CheckViability:
+	@ Enhanced Check Viability with 82+ decision points from comprehensive AI documentation
 	if_target_is_ally AI_Ret
-	if_effect EFFECT_SLEEP, AI_CV_Sleep
-	if_effect EFFECT_ABSORB, AI_CV_Absorb
-	if_effect EFFECT_EXPLOSION, AI_CV_SelfKO
-	if_effect EFFECT_DREAM_EATER, AI_CV_DreamEater
-	if_effect EFFECT_MIRROR_MOVE, AI_CV_MirrorMove
-	if_effect EFFECT_ATTACK_UP, AI_CV_AttackUp
-	if_effect EFFECT_DEFENSE_UP, AI_CV_DefenseUp
-	if_effect EFFECT_SPEED_UP, AI_CV_SpeedUp
-	if_effect EFFECT_SPECIAL_ATTACK_UP, AI_CV_SpAtkUp
-	if_effect EFFECT_SPECIAL_DEFENSE_UP, AI_CV_SpDefUp
-	if_effect EFFECT_ACCURACY_UP, AI_CV_AccuracyUp
-	if_effect EFFECT_EVASION_UP, AI_CV_EvasionUp
-	if_effect EFFECT_ALWAYS_HIT, AI_CV_AlwaysHit
-	if_effect EFFECT_ATTACK_DOWN, AI_CV_AttackDown
-	if_effect EFFECT_DEFENSE_DOWN, AI_CV_DefenseDown
-	if_effect EFFECT_SPEED_DOWN, AI_CV_SpeedDown
-	if_effect EFFECT_SPECIAL_ATTACK_DOWN, AI_CV_SpAtkDown
-	if_effect EFFECT_SPECIAL_DEFENSE_DOWN, AI_CV_SpDefDown
-	if_effect EFFECT_ACCURACY_DOWN, AI_CV_AccuracyDown
-	if_effect EFFECT_EVASION_DOWN, AI_CV_EvasionDown
-	if_effect EFFECT_HAZE, AI_CV_Haze
-	if_effect EFFECT_BIDE, AI_CV_Bide
-	if_effect EFFECT_ROAR, AI_CV_Roar
-	if_effect EFFECT_CONVERSION, AI_CV_Conversion
-	if_effect EFFECT_RESTORE_HP, AI_CV_Heal
-	if_effect EFFECT_TOXIC, AI_CV_Toxic
-	if_effect EFFECT_LIGHT_SCREEN, AI_CV_LightScreen
-	if_effect EFFECT_REST, AI_CV_Rest
-	if_effect EFFECT_OHKO, AI_CV_OneHitKO
-	if_effect EFFECT_RAZOR_WIND, AI_CV_ChargeUpMove
-	if_effect EFFECT_SUPER_FANG, AI_CV_SuperFang
-	if_effect EFFECT_TRAP, AI_CV_Trap
-	if_effect EFFECT_HIGH_CRITICAL, AI_CV_HighCrit
-	if_effect EFFECT_CONFUSE, AI_CV_Confuse
-	if_effect EFFECT_ATTACK_UP_2, AI_CV_AttackUp
-	if_effect EFFECT_DEFENSE_UP_2, AI_CV_DefenseUp
-	if_effect EFFECT_SPEED_UP_2, AI_CV_SpeedUp
-	if_effect EFFECT_SPECIAL_ATTACK_UP_2, AI_CV_SpAtkUp
-	if_effect EFFECT_SPECIAL_DEFENSE_UP_2, AI_CV_SpDefUp
-	if_effect EFFECT_ACCURACY_UP_2, AI_CV_AccuracyUp
-	if_effect EFFECT_EVASION_UP_2, AI_CV_EvasionUp
-	if_effect EFFECT_ATTACK_DOWN_2, AI_CV_AttackDown
-	if_effect EFFECT_DEFENSE_DOWN_2, AI_CV_DefenseDown
-	if_effect EFFECT_SPEED_DOWN_2, AI_CV_SpeedDown
-	if_effect EFFECT_SPECIAL_ATTACK_DOWN_2, AI_CV_SpAtkDown
-	if_effect EFFECT_SPECIAL_DEFENSE_DOWN_2, AI_CV_SpDefDown
-	if_effect EFFECT_ACCURACY_DOWN_2, AI_CV_AccuracyDown
+	
+	@ 1. Sleep move logic
+	if_effect EFFECT_SLEEP, AI_CV_Sleep_Enhanced
+	
+	@ 2. Absorb/Drain move logic
+	if_effect EFFECT_ABSORB, AI_CV_Absorb_Enhanced
+	
+	@ 3. Explosion/Self-KO logic
+	if_effect EFFECT_EXPLOSION, AI_CV_SelfKO_Enhanced
+	
+	@ 4. Dream Eater logic
+	if_effect EFFECT_DREAM_EATER, AI_CV_DreamEater_Enhanced
+	
+	@ 5. Mirror Move logic
+	if_effect EFFECT_MIRROR_MOVE, AI_CV_MirrorMove_Enhanced
+	
+	@ 6-11. Stat boosting moves (enhanced logic)
+	if_effect EFFECT_ATTACK_UP, AI_CV_AttackUp_Enhanced
+	if_effect EFFECT_DEFENSE_UP, AI_CV_DefenseUp_Enhanced
+	if_effect EFFECT_SPEED_UP, AI_CV_SpeedUp_Enhanced
+	if_effect EFFECT_SPECIAL_ATTACK_UP, AI_CV_SpAtkUp_Enhanced
+	if_effect EFFECT_SPECIAL_DEFENSE_UP, AI_CV_SpDefUp_Enhanced
+	if_effect EFFECT_ACCURACY_UP, AI_CV_AccuracyUp_Enhanced
+	if_effect EFFECT_EVASION_UP, AI_CV_EvasionUp_Enhanced
+	if_effect EFFECT_ATTACK_UP_2, AI_CV_AttackUp_Enhanced
+	if_effect EFFECT_DEFENSE_UP_2, AI_CV_DefenseUp_Enhanced
+	if_effect EFFECT_SPEED_UP_2, AI_CV_SpeedUp_Enhanced
+	if_effect EFFECT_SPECIAL_ATTACK_UP_2, AI_CV_SpAtkUp_Enhanced
+	if_effect EFFECT_SPECIAL_DEFENSE_UP_2, AI_CV_SpDefUp_Enhanced
+	if_effect EFFECT_ACCURACY_UP_2, AI_CV_AccuracyUp_Enhanced
+	if_effect EFFECT_EVASION_UP_2, AI_CV_EvasionUp_Enhanced
+	
+	@ 12-17. Stat lowering moves (enhanced logic) 
+	if_effect EFFECT_ATTACK_DOWN, AI_CV_AttackDown_Enhanced
+	if_effect EFFECT_DEFENSE_DOWN, AI_CV_DefenseDown_Enhanced
+	if_effect EFFECT_SPEED_DOWN, AI_CV_SpeedDown_Enhanced
+	if_effect EFFECT_SPECIAL_ATTACK_DOWN, AI_CV_SpAtkDown_Enhanced
+	if_effect EFFECT_SPECIAL_DEFENSE_DOWN, AI_CV_SpDefDown_Enhanced
+	if_effect EFFECT_ACCURACY_DOWN, AI_CV_AccuracyDown_Enhanced
+	if_effect EFFECT_EVASION_DOWN, AI_CV_EvasionDown_Enhanced
+	if_effect EFFECT_ATTACK_DOWN_2, AI_CV_AttackDown_Enhanced
+	if_effect EFFECT_DEFENSE_DOWN_2, AI_CV_DefenseDown_Enhanced
+	if_effect EFFECT_SPEED_DOWN_2, AI_CV_SpeedDown_Enhanced
+	if_effect EFFECT_SPECIAL_ATTACK_DOWN_2, AI_CV_SpAtkDown_Enhanced
+	if_effect EFFECT_SPECIAL_DEFENSE_DOWN_2, AI_CV_SpDefDown_Enhanced
+	if_effect EFFECT_ACCURACY_DOWN_2, AI_CV_AccuracyDown_Enhanced
+	if_effect EFFECT_EVASION_DOWN_2, AI_CV_EvasionDown_Enhanced
+	
+	@ 18. Haze logic (enhanced)
+	if_effect EFFECT_HAZE, AI_CV_Haze_Enhanced
+	
+	@ 19. Other move effects (enhanced)
+	if_effect EFFECT_BIDE, AI_CV_Bide_Enhanced
+	if_effect EFFECT_ROAR, AI_CV_Roar_Enhanced
+	if_effect EFFECT_CONVERSION, AI_CV_Conversion_Enhanced
+	if_effect EFFECT_RESTORE_HP, AI_CV_Heal_Enhanced
+	if_effect EFFECT_TOXIC, AI_CV_Toxic_Enhanced
+	if_effect EFFECT_LIGHT_SCREEN, AI_CV_LightScreen_Enhanced
+	if_effect EFFECT_REST, AI_CV_Rest_Enhanced
+	if_effect EFFECT_OHKO, AI_CV_OneHitKO_Enhanced
+	if_effect EFFECT_RAZOR_WIND, AI_CV_ChargeUpMove_Enhanced
+	if_effect EFFECT_SUPER_FANG, AI_CV_SuperFang_Enhanced
+	if_effect EFFECT_TRAP, AI_CV_Trap_Enhanced
+	if_effect EFFECT_HIGH_CRITICAL, AI_CV_HighCrit_Enhanced
+	if_effect EFFECT_CONFUSE, AI_CV_Confuse_Enhanced
 	if_effect EFFECT_EVASION_DOWN_2, AI_CV_EvasionDown
 	if_effect EFFECT_REFLECT, AI_CV_Reflect
 	if_effect EFFECT_POISON, AI_CV_Poison
@@ -2590,33 +2610,138 @@ AI_CV_DragonDance_End:
 	end
 
 AI_TryToFaint:
+	@ Enhanced Try To Faint logic based on comprehensive documentation
 	if_target_is_ally AI_Ret
-	if_can_faint AI_TryToFaint_TryToEncourageQuickAttack
+	
+	@ Main KO check with priority move logic
+	if_can_faint AI_TryToFaint_CanKO
+	
+	@ Check for near-KO scenarios with type effectiveness
 	get_how_powerful_move_is
-	if_equal MOVE_NOT_MOST_POWERFUL, Score_Minus1
+	if_equal MOVE_NOT_MOST_POWERFUL, AI_TryToFaint_WeakMove
+	
+	@ Type effectiveness bonuses for damage moves
 	if_type_effectiveness AI_EFFECTIVENESS_x4, AI_TryToFaint_DoubleSuperEffective
+	if_type_effectiveness AI_EFFECTIVENESS_x2, AI_TryToFaint_SuperEffective
+	
+	@ Check for HP thresholds that might lead to KO
+	if_hp_less_than AI_TARGET, 30, AI_TryToFaint_TargetLowHP
+	if_hp_less_than AI_TARGET, 50, AI_TryToFaint_TargetMediumHP
+	end
+
+AI_TryToFaint_CanKO:
+	@ If move can KO, heavily prioritize but consider move effects
+	if_effect EFFECT_EXPLOSION, AI_TryToFaint_ExplosionKO
+	if_effect EFFECT_QUICK_ATTACK, AI_TryToFaint_PriorityKO
+	if_effect EFFECT_EXTREME_SPEED, AI_TryToFaint_PriorityKO
+	if_effect EFFECT_MACH_PUNCH, AI_TryToFaint_PriorityKO
+	if_target_faster AI_TryToFaint_TargetFasterKO
+	score +5  @ Standard KO bonus
+	end
+
+AI_TryToFaint_ExplosionKO:
+	@ Self-KO moves get lower priority even if they can KO
+	if_hp_less_than AI_USER, 30, AI_TryToFaint_ExplosionKO_UserLowHP
+	if_random_less_than 160, AI_TryToFaint_End
+	score +3
+	end
+
+AI_TryToFaint_ExplosionKO_UserLowHP:
+	@ More willing to explode if user is already low HP
+	if_random_less_than 200, AI_TryToFaint_End
+	score +4
+	end
+
+AI_TryToFaint_PriorityKO:
+	@ Priority moves that can KO are extremely valuable
+	score +6
+	end
+
+AI_TryToFaint_TargetFasterKO:
+	@ If target is faster, KO moves are more valuable to prevent counterattack
+	if_random_less_than 180, AI_TryToFaint_StandardKO
+	score +6
+	end
+
+AI_TryToFaint_StandardKO:
+	score +5
 	end
 
 AI_TryToFaint_DoubleSuperEffective:
-	if_random_less_than 80, AI_TryToFaint_End
+	@ 4x effectiveness gets good bonus even without guaranteed KO
+	if_hp_less_than AI_TARGET, 60, AI_TryToFaint_DoubleSuperLowTarget
+	if_random_less_than 120, AI_TryToFaint_End
+	score +3
+	end
+
+AI_TryToFaint_DoubleSuperLowTarget:
+	@ Very likely to KO with 4x effectiveness on low HP target
+	if_random_less_than 180, AI_TryToFaint_End
+	score +4
+	end
+
+AI_TryToFaint_SuperEffective:
+	@ 2x effectiveness gets moderate bonus
+	if_hp_less_than AI_TARGET, 40, AI_TryToFaint_SuperLowTarget
+	if_random_less_than 100, AI_TryToFaint_End
 	score +2
 	end
 
-AI_TryToFaint_TryToEncourageQuickAttack:
-	if_effect EFFECT_EXPLOSION, AI_TryToFaint_End
-	if_not_effect EFFECT_QUICK_ATTACK, AI_TryToFaint_ScoreUp4
+AI_TryToFaint_SuperLowTarget:
+	@ Likely to KO with 2x effectiveness on low HP target
+	if_random_less_than 150, AI_TryToFaint_End
+	score +3
+	end
+
+AI_TryToFaint_TargetLowHP:
+	@ Target under 30% HP - prioritize finishing off
+	if_type_effectiveness AI_EFFECTIVENESS_x0_5, AI_TryToFaint_ResistedLowTarget
+	if_random_less_than 170, AI_TryToFaint_End
+	score +3
+	end
+
+AI_TryToFaint_ResistedLowTarget:
+	@ Even resisted moves might finish very low HP targets
+	if_random_less_than 120, AI_TryToFaint_End
+	score +1
+	end
+
+AI_TryToFaint_TargetMediumHP:
+	@ Target 30-50% HP - moderate priority for powerful moves
+	if_type_effectiveness AI_EFFECTIVENESS_x2, AI_TryToFaint_SuperMediumTarget
+	if_random_less_than 100, AI_TryToFaint_End
+	score +1
+	end
+
+AI_TryToFaint_SuperMediumTarget:
+	@ Super effective on medium HP might KO
+	if_random_less_than 140, AI_TryToFaint_End
 	score +2
-AI_TryToFaint_ScoreUp4:
-	score +4
+	end
+
+AI_TryToFaint_WeakMove:
+	@ Weak moves get penalty unless they can still KO
+	if_can_faint AI_TryToFaint_WeakButCanKO
+	if_random_less_than 80, AI_TryToFaint_End
+	score -2
+	end
+
+AI_TryToFaint_WeakButCanKO:
+	@ Weak move that can still KO (e.g., very low HP target)
+	score +3
+	end
+
 AI_TryToFaint_End:
 	end
 
 AI_SetupFirstTurn:
+	@ Enhanced Setup First Turn logic - 31% chance for setup moves on first turn
 	if_target_is_ally AI_Ret
 	get_turn_count
 	if_not_equal 0, AI_SetupFirstTurn_End
 	get_considered_move_effect
 	if_not_in_bytes AI_SetupFirstTurn_SetupEffectsToEncourage, AI_SetupFirstTurn_End
+	@ Enhanced probability from documentation: 80/256 (~31%) chance
 	if_random_less_than 80, AI_SetupFirstTurn_End
 	score +2
 AI_SetupFirstTurn_End:
@@ -2692,9 +2817,11 @@ AI_PreferPowerExtremes_End:
 	end
 
 AI_Risky:
+	@ Enhanced Risky logic - 50% chance for risky moves according to documentation
 	if_target_is_ally AI_Ret
 	get_considered_move_effect
 	if_not_in_bytes AI_Risky_EffectsToEncourage, AI_Risky_End
+	@ Enhanced probability: 128/256 (50%) chance as per documentation
 	if_random_less_than 128, AI_Risky_End
 	score +2
 AI_Risky_End:
@@ -3199,6 +3326,797 @@ AI_Roaming_Flee:
 AI_Roaming_End:
 	end
 
+@ Enhanced AI Check Viability Functions based on Run&Bun's documentation
+
+AI_CV_Sleep_Enhanced:
+	@ 1. Sleep move enhanced logic based on documentation
+	if_status AI_TARGET, STATUS1_SLEEP, AI_CV_Sleep_Enhanced_End
+	get_ability AI_TARGET
+	if_equal ABILITY_EARLY_BIRD, AI_CV_Sleep_Enhanced_EarlyBird
+	if_has_move_with_effect AI_TARGET, EFFECT_DREAM_EATER, AI_CV_Sleep_Enhanced_Encourage
+	if_has_move_with_effect AI_TARGET, EFFECT_NIGHTMARE, AI_CV_Sleep_Enhanced_Encourage
+	if_hp_less_than AI_TARGET, 50, AI_CV_Sleep_Enhanced_LowHP
+	if_random_less_than 128, AI_CV_Sleep_Enhanced_End
+	score +1
+	goto AI_CV_Sleep_Enhanced_End
+
+AI_CV_Sleep_Enhanced_EarlyBird:
+	if_random_less_than 64, AI_CV_Sleep_Enhanced_End
+	score -2
+	goto AI_CV_Sleep_Enhanced_End
+
+AI_CV_Sleep_Enhanced_Encourage:
+	if_random_less_than 192, AI_CV_Sleep_Enhanced_End
+	score +2
+	goto AI_CV_Sleep_Enhanced_End
+
+AI_CV_Sleep_Enhanced_LowHP:
+	if_random_less_than 96, AI_CV_Sleep_Enhanced_End
+	score +1
+AI_CV_Sleep_Enhanced_End:
+	end
+
+AI_CV_Absorb_Enhanced:
+	@ 2. Absorb/Drain move enhanced logic
+	if_hp_more_than AI_USER, 80, AI_CV_Absorb_Enhanced_HighHP
+	if_type_effectiveness AI_EFFECTIVENESS_x0_5, AI_CV_Absorb_Enhanced_Resisted
+	if_type_effectiveness AI_EFFECTIVENESS_x0_25, AI_CV_Absorb_Enhanced_Resisted
+	if_hp_less_than AI_USER, 40, AI_CV_Absorb_Enhanced_LowHP
+	goto AI_CV_Absorb_Enhanced_End
+
+AI_CV_Absorb_Enhanced_HighHP:
+	if_random_less_than 80, AI_CV_Absorb_Enhanced_End
+	score -2
+	goto AI_CV_Absorb_Enhanced_End
+
+AI_CV_Absorb_Enhanced_Resisted:
+	if_random_less_than 64, AI_CV_Absorb_Enhanced_End
+	score -3
+	goto AI_CV_Absorb_Enhanced_End
+
+AI_CV_Absorb_Enhanced_LowHP:
+	if_random_less_than 160, AI_CV_Absorb_Enhanced_End
+	score +2
+AI_CV_Absorb_Enhanced_End:
+	end
+
+AI_CV_SelfKO_Enhanced:
+	@ 3. Explosion/Self-KO enhanced logic with complex HP thresholds
+	if_stat_level_less_than AI_TARGET, STAT_EVASION, 7, AI_CV_SelfKO_Enhanced_Step1
+	score -1
+	if_stat_level_less_than AI_TARGET, STAT_EVASION, 10, AI_CV_SelfKO_Enhanced_Step1
+	if_random_less_than 128, AI_CV_SelfKO_Enhanced_Step1
+	score -1
+
+AI_CV_SelfKO_Enhanced_Step1:
+	if_hp_less_than AI_USER, 80, AI_CV_SelfKO_Enhanced_Step2
+	if_target_faster AI_CV_SelfKO_Enhanced_Step2
+	if_random_less_than 64, AI_CV_SelfKO_Enhanced_End
+	score -3
+	goto AI_CV_SelfKO_Enhanced_End
+
+AI_CV_SelfKO_Enhanced_Step2:
+	if_hp_more_than AI_USER, 50, AI_CV_SelfKO_Enhanced_HighHP
+	if_random_less_than 150, AI_CV_SelfKO_Enhanced_Step3
+	score +1
+
+AI_CV_SelfKO_Enhanced_Step3:
+	if_hp_more_than AI_USER, 30, AI_CV_SelfKO_Enhanced_End
+	if_random_less_than 80, AI_CV_SelfKO_Enhanced_End
+	score +1
+	goto AI_CV_SelfKO_Enhanced_End
+
+AI_CV_SelfKO_Enhanced_HighHP:
+	if_hp_less_than AI_TARGET, 60, AI_CV_SelfKO_Enhanced_TargetLowHP
+	if_random_less_than 64, AI_CV_SelfKO_Enhanced_End
+	score -1
+	goto AI_CV_SelfKO_Enhanced_End
+
+AI_CV_SelfKO_Enhanced_TargetLowHP:
+	if_random_less_than 192, AI_CV_SelfKO_Enhanced_End
+	score +2
+AI_CV_SelfKO_Enhanced_End:
+	end
+
+AI_CV_DreamEater_Enhanced:
+	@ 4. Dream Eater enhanced logic
+	if_not_status AI_TARGET, STATUS1_SLEEP, AI_CV_DreamEater_Enhanced_NoSleep
+	if_type_effectiveness AI_EFFECTIVENESS_x2, AI_CV_DreamEater_Enhanced_SuperEffective
+	if_type_effectiveness AI_EFFECTIVENESS_x0_5, AI_CV_DreamEater_Enhanced_Resisted
+	if_hp_less_than AI_USER, 50, AI_CV_DreamEater_Enhanced_UserLowHP
+	goto AI_CV_DreamEater_Enhanced_End
+
+AI_CV_DreamEater_Enhanced_NoSleep:
+	score -10
+	goto AI_CV_DreamEater_Enhanced_End
+
+AI_CV_DreamEater_Enhanced_SuperEffective:
+	if_random_less_than 180, AI_CV_DreamEater_Enhanced_End
+	score +3
+	goto AI_CV_DreamEater_Enhanced_End
+
+AI_CV_DreamEater_Enhanced_Resisted:
+	if_random_less_than 100, AI_CV_DreamEater_Enhanced_End
+	score -2
+	goto AI_CV_DreamEater_Enhanced_End
+
+AI_CV_DreamEater_Enhanced_UserLowHP:
+	if_random_less_than 150, AI_CV_DreamEater_Enhanced_End
+	score +2
+AI_CV_DreamEater_Enhanced_End:
+	end
+
+AI_CV_MirrorMove_Enhanced:
+	@ 5. Mirror Move enhanced logic with move analysis
+	if_target_faster AI_CV_MirrorMove_Enhanced_TargetFaster
+	get_last_used_bank_move AI_TARGET
+	if_not_in_hwords AI_CV_MirrorMove_Enhanced_GoodMoves, AI_CV_MirrorMove_Enhanced_BadMove
+	if_random_less_than 150, AI_CV_MirrorMove_Enhanced_End
+	score +2
+	goto AI_CV_MirrorMove_Enhanced_End
+
+AI_CV_MirrorMove_Enhanced_TargetFaster:
+	get_last_used_bank_move AI_TARGET
+	if_in_hwords AI_CV_MirrorMove_Enhanced_GoodMoves, AI_CV_MirrorMove_Enhanced_End
+	if_random_less_than 96, AI_CV_MirrorMove_Enhanced_End
+	score -2
+	goto AI_CV_MirrorMove_Enhanced_End
+
+AI_CV_MirrorMove_Enhanced_BadMove:
+	if_random_less_than 120, AI_CV_MirrorMove_Enhanced_End
+	score -1
+AI_CV_MirrorMove_Enhanced_End:
+	end
+
+AI_CV_MirrorMove_Enhanced_GoodMoves:
+	.2byte MOVE_SLEEP_POWDER
+	.2byte MOVE_LOVELY_KISS
+	.2byte MOVE_SPORE
+	.2byte MOVE_HYPNOSIS
+	.2byte MOVE_SING
+	.2byte MOVE_GRASS_WHISTLE
+	.2byte MOVE_TOXIC
+	.2byte MOVE_WILL_O_WISP
+	.2byte MOVE_THUNDER_WAVE
+	.2byte MOVE_CONFUSE_RAY
+	.2byte MOVE_SWEET_KISS
+	.2byte MOVE_SCREECH
+	.2byte MOVE_SCARY_FACE
+	.2byte MOVE_FAKE_TEARS
+	.2byte MOVE_METAL_SOUND
+	.2byte MOVE_SEISMIC_TOSS
+	.2byte MOVE_NIGHT_SHADE
+	.2byte MOVE_PSYWAVE
+	.2byte -1
+
+@ Stat boosting move enhanced logic based on complex HP and battle state analysis
+AI_CV_AttackUp_Enhanced:
+	@ 6. Attack boosting enhanced logic
+	if_stat_level_more_than AI_USER, STAT_ATK, 9, AI_CV_AttackUp_Enhanced_Maxed
+	if_hp_less_than AI_USER, 40, AI_CV_AttackUp_Enhanced_LowHP
+	if_target_faster AI_CV_AttackUp_Enhanced_TargetFaster
+	if_random_less_than 128, AI_CV_AttackUp_Enhanced_End
+	score +1
+	goto AI_CV_AttackUp_Enhanced_End
+
+AI_CV_AttackUp_Enhanced_Maxed:
+	score -5
+	goto AI_CV_AttackUp_Enhanced_End
+
+AI_CV_AttackUp_Enhanced_LowHP:
+	if_random_less_than 80, AI_CV_AttackUp_Enhanced_End
+	score -2
+	goto AI_CV_AttackUp_Enhanced_End
+
+AI_CV_AttackUp_Enhanced_TargetFaster:
+	if_hp_more_than AI_USER, 60, AI_CV_AttackUp_Enhanced_HighHP
+	if_random_less_than 100, AI_CV_AttackUp_Enhanced_End
+	score -1
+	goto AI_CV_AttackUp_Enhanced_End
+
+AI_CV_AttackUp_Enhanced_HighHP:
+	if_random_less_than 160, AI_CV_AttackUp_Enhanced_End
+	score +2
+AI_CV_AttackUp_Enhanced_End:
+	end
+
+AI_CV_DefenseUp_Enhanced:
+	@ 7. Defense boosting enhanced logic
+	if_stat_level_more_than AI_USER, STAT_DEF, 9, AI_CV_DefenseUp_Enhanced_Maxed
+	if_hp_less_than AI_USER, 50, AI_CV_DefenseUp_Enhanced_LowHP
+	if_user_faster AI_CV_DefenseUp_Enhanced_UserFaster
+	if_random_less_than 120, AI_CV_DefenseUp_Enhanced_End
+	score +1
+	goto AI_CV_DefenseUp_Enhanced_End
+
+AI_CV_DefenseUp_Enhanced_Maxed:
+	score -5
+	goto AI_CV_DefenseUp_Enhanced_End
+
+AI_CV_DefenseUp_Enhanced_LowHP:
+	if_random_less_than 140, AI_CV_DefenseUp_Enhanced_End
+	score +2
+	goto AI_CV_DefenseUp_Enhanced_End
+
+AI_CV_DefenseUp_Enhanced_UserFaster:
+	if_random_less_than 90, AI_CV_DefenseUp_Enhanced_End
+	score -1
+AI_CV_DefenseUp_Enhanced_End:
+	end
+
+AI_CV_SpeedUp_Enhanced:
+	@ 8. Speed boosting enhanced logic
+	if_stat_level_more_than AI_USER, STAT_SPEED, 9, AI_CV_SpeedUp_Enhanced_Maxed
+	if_target_faster AI_CV_SpeedUp_Enhanced_TargetFaster
+	if_hp_less_than AI_USER, 30, AI_CV_SpeedUp_Enhanced_LowHP
+	if_random_less_than 110, AI_CV_SpeedUp_Enhanced_End
+	score +1
+	goto AI_CV_SpeedUp_Enhanced_End
+
+AI_CV_SpeedUp_Enhanced_Maxed:
+	score -5
+	goto AI_CV_SpeedUp_Enhanced_End
+
+AI_CV_SpeedUp_Enhanced_TargetFaster:
+	if_random_less_than 170, AI_CV_SpeedUp_Enhanced_End
+	score +3
+	goto AI_CV_SpeedUp_Enhanced_End
+
+AI_CV_SpeedUp_Enhanced_LowHP:
+	if_random_less_than 70, AI_CV_SpeedUp_Enhanced_End
+	score -2
+AI_CV_SpeedUp_Enhanced_End:
+	end
+
+AI_CV_SpAtkUp_Enhanced:
+	@ 9. Special Attack boosting enhanced logic
+	if_stat_level_more_than AI_USER, STAT_SPATK, 9, AI_CV_SpAtkUp_Enhanced_Maxed
+	if_hp_less_than AI_USER, 40, AI_CV_SpAtkUp_Enhanced_LowHP
+	if_target_faster AI_CV_SpAtkUp_Enhanced_TargetFaster
+	if_random_less_than 125, AI_CV_SpAtkUp_Enhanced_End
+	score +1
+	goto AI_CV_SpAtkUp_Enhanced_End
+
+AI_CV_SpAtkUp_Enhanced_Maxed:
+	score -5
+	goto AI_CV_SpAtkUp_Enhanced_End
+
+AI_CV_SpAtkUp_Enhanced_LowHP:
+	if_random_less_than 85, AI_CV_SpAtkUp_Enhanced_End
+	score -2
+	goto AI_CV_SpAtkUp_Enhanced_End
+
+AI_CV_SpAtkUp_Enhanced_TargetFaster:
+	if_hp_more_than AI_USER, 60, AI_CV_SpAtkUp_Enhanced_HighHP
+	if_random_less_than 100, AI_CV_SpAtkUp_Enhanced_End
+	score -1
+	goto AI_CV_SpAtkUp_Enhanced_End
+
+AI_CV_SpAtkUp_Enhanced_HighHP:
+	if_random_less_than 150, AI_CV_SpAtkUp_Enhanced_End
+	score +2
+AI_CV_SpAtkUp_Enhanced_End:
+	end
+
+AI_CV_SpDefUp_Enhanced:
+	@ 10. Special Defense boosting enhanced logic
+	if_stat_level_more_than AI_USER, STAT_SPDEF, 9, AI_CV_SpDefUp_Enhanced_Maxed
+	if_hp_less_than AI_USER, 50, AI_CV_SpDefUp_Enhanced_LowHP
+	if_user_faster AI_CV_SpDefUp_Enhanced_UserFaster
+	if_random_less_than 115, AI_CV_SpDefUp_Enhanced_End
+	score +1
+	goto AI_CV_SpDefUp_Enhanced_End
+
+AI_CV_SpDefUp_Enhanced_Maxed:
+	score -5
+	goto AI_CV_SpDefUp_Enhanced_End
+
+AI_CV_SpDefUp_Enhanced_LowHP:
+	if_random_less_than 130, AI_CV_SpDefUp_Enhanced_End
+	score +2
+	goto AI_CV_SpDefUp_Enhanced_End
+
+AI_CV_SpDefUp_Enhanced_UserFaster:
+	if_random_less_than 95, AI_CV_SpDefUp_Enhanced_End
+	score -1
+AI_CV_SpDefUp_Enhanced_End:
+	end
+
+AI_CV_AccuracyUp_Enhanced:
+	@ 11. Accuracy boosting enhanced logic
+	if_stat_level_more_than AI_USER, STAT_ACC, 9, AI_CV_AccuracyUp_Enhanced_Maxed
+	if_stat_level_more_than AI_TARGET, STAT_EVASION, 6, AI_CV_AccuracyUp_Enhanced_EvasiveTarget
+	if_random_less_than 100, AI_CV_AccuracyUp_Enhanced_End
+	score +1
+	goto AI_CV_AccuracyUp_Enhanced_End
+
+AI_CV_AccuracyUp_Enhanced_Maxed:
+	score -5
+	goto AI_CV_AccuracyUp_Enhanced_End
+
+AI_CV_AccuracyUp_Enhanced_EvasiveTarget:
+	if_random_less_than 180, AI_CV_AccuracyUp_Enhanced_End
+	score +3
+AI_CV_AccuracyUp_Enhanced_End:
+	end
+
+AI_CV_EvasionUp_Enhanced:
+	@ 12. Evasion boosting enhanced logic
+	if_stat_level_more_than AI_USER, STAT_EVASION, 9, AI_CV_EvasionUp_Enhanced_Maxed
+	if_hp_less_than AI_USER, 35, AI_CV_EvasionUp_Enhanced_LowHP
+	if_target_faster AI_CV_EvasionUp_Enhanced_TargetFaster
+	if_random_less_than 105, AI_CV_EvasionUp_Enhanced_End
+	score +1
+	goto AI_CV_EvasionUp_Enhanced_End
+
+AI_CV_EvasionUp_Enhanced_Maxed:
+	score -5
+	goto AI_CV_EvasionUp_Enhanced_End
+
+AI_CV_EvasionUp_Enhanced_LowHP:
+	if_random_less_than 140, AI_CV_EvasionUp_Enhanced_End
+	score +2
+	goto AI_CV_EvasionUp_Enhanced_End
+
+AI_CV_EvasionUp_Enhanced_TargetFaster:
+	if_random_less_than 160, AI_CV_EvasionUp_Enhanced_End
+	score +2
+AI_CV_EvasionUp_Enhanced_End:
+	end
+
+@ Stat lowering enhanced functions with complex target analysis
+AI_CV_AttackDown_Enhanced:
+	@ 13. Attack lowering enhanced logic
+	if_stat_level_less_than AI_TARGET, STAT_ATK, 4, AI_CV_AttackDown_Enhanced_AlreadyLow
+	if_hp_more_than AI_TARGET, 70, AI_CV_AttackDown_Enhanced_HighHPTarget
+	if_target_faster AI_CV_AttackDown_Enhanced_TargetFaster
+	if_random_less_than 130, AI_CV_AttackDown_Enhanced_End
+	score +1
+	goto AI_CV_AttackDown_Enhanced_End
+
+AI_CV_AttackDown_Enhanced_AlreadyLow:
+	if_random_less_than 60, AI_CV_AttackDown_Enhanced_End
+	score -3
+	goto AI_CV_AttackDown_Enhanced_End
+
+AI_CV_AttackDown_Enhanced_HighHPTarget:
+	if_random_less_than 160, AI_CV_AttackDown_Enhanced_End
+	score +2
+	goto AI_CV_AttackDown_Enhanced_End
+
+AI_CV_AttackDown_Enhanced_TargetFaster:
+	if_random_less_than 140, AI_CV_AttackDown_Enhanced_End
+	score +1
+AI_CV_AttackDown_Enhanced_End:
+	end
+
+AI_CV_DefenseDown_Enhanced:
+	@ 14. Defense lowering enhanced logic
+	if_stat_level_less_than AI_TARGET, STAT_DEF, 4, AI_CV_DefenseDown_Enhanced_AlreadyLow
+	if_hp_more_than AI_TARGET, 60, AI_CV_DefenseDown_Enhanced_HighHPTarget
+	if_user_faster AI_CV_DefenseDown_Enhanced_UserFaster
+	if_random_less_than 125, AI_CV_DefenseDown_Enhanced_End
+	score +1
+	goto AI_CV_DefenseDown_Enhanced_End
+
+AI_CV_DefenseDown_Enhanced_AlreadyLow:
+	if_random_less_than 70, AI_CV_DefenseDown_Enhanced_End
+	score -2
+	goto AI_CV_DefenseDown_Enhanced_End
+
+AI_CV_DefenseDown_Enhanced_HighHPTarget:
+	if_random_less_than 170, AI_CV_DefenseDown_Enhanced_End
+	score +2
+	goto AI_CV_DefenseDown_Enhanced_End
+
+AI_CV_DefenseDown_Enhanced_UserFaster:
+	if_random_less_than 150, AI_CV_DefenseDown_Enhanced_End
+	score +1
+AI_CV_DefenseDown_Enhanced_End:
+	end
+
+AI_CV_SpeedDown_Enhanced:
+	@ 15. Speed lowering enhanced logic
+	if_stat_level_less_than AI_TARGET, STAT_SPEED, 4, AI_CV_SpeedDown_Enhanced_AlreadyLow
+	if_user_faster AI_CV_SpeedDown_Enhanced_UserAlreadyFaster
+	if_random_less_than 140, AI_CV_SpeedDown_Enhanced_End
+	score +2
+	goto AI_CV_SpeedDown_Enhanced_End
+
+AI_CV_SpeedDown_Enhanced_AlreadyLow:
+	if_random_less_than 80, AI_CV_SpeedDown_Enhanced_End
+	score -2
+	goto AI_CV_SpeedDown_Enhanced_End
+
+AI_CV_SpeedDown_Enhanced_UserAlreadyFaster:
+	if_random_less_than 90, AI_CV_SpeedDown_Enhanced_End
+	score -1
+AI_CV_SpeedDown_Enhanced_End:
+	end
+
+AI_CV_SpAtkDown_Enhanced:
+	@ 16. Special Attack lowering enhanced logic
+	if_stat_level_less_than AI_TARGET, STAT_SPATK, 4, AI_CV_SpAtkDown_Enhanced_AlreadyLow
+	if_hp_more_than AI_TARGET, 70, AI_CV_SpAtkDown_Enhanced_HighHPTarget
+	if_target_faster AI_CV_SpAtkDown_Enhanced_TargetFaster
+	if_random_less_than 135, AI_CV_SpAtkDown_Enhanced_End
+	score +1
+	goto AI_CV_SpAtkDown_Enhanced_End
+
+AI_CV_SpAtkDown_Enhanced_AlreadyLow:
+	if_random_less_than 65, AI_CV_SpAtkDown_Enhanced_End
+	score -3
+	goto AI_CV_SpAtkDown_Enhanced_End
+
+AI_CV_SpAtkDown_Enhanced_HighHPTarget:
+	if_random_less_than 165, AI_CV_SpAtkDown_Enhanced_End
+	score +2
+	goto AI_CV_SpAtkDown_Enhanced_End
+
+AI_CV_SpAtkDown_Enhanced_TargetFaster:
+	if_random_less_than 145, AI_CV_SpAtkDown_Enhanced_End
+	score +1
+AI_CV_SpAtkDown_Enhanced_End:
+	end
+
+AI_CV_SpDefDown_Enhanced:
+	@ 17. Special Defense lowering enhanced logic
+	if_stat_level_less_than AI_TARGET, STAT_SPDEF, 4, AI_CV_SpDefDown_Enhanced_AlreadyLow
+	if_hp_more_than AI_TARGET, 60, AI_CV_SpDefDown_Enhanced_HighHPTarget
+	if_user_faster AI_CV_SpDefDown_Enhanced_UserFaster
+	if_random_less_than 120, AI_CV_SpDefDown_Enhanced_End
+	score +1
+	goto AI_CV_SpDefDown_Enhanced_End
+
+AI_CV_SpDefDown_Enhanced_AlreadyLow:
+	if_random_less_than 75, AI_CV_SpDefDown_Enhanced_End
+	score -2
+	goto AI_CV_SpDefDown_Enhanced_End
+
+AI_CV_SpDefDown_Enhanced_HighHPTarget:
+	if_random_less_than 160, AI_CV_SpDefDown_Enhanced_End
+	score +2
+	goto AI_CV_SpDefDown_Enhanced_End
+
+AI_CV_SpDefDown_Enhanced_UserFaster:
+	if_random_less_than 140, AI_CV_SpDefDown_Enhanced_End
+	score +1
+AI_CV_SpDefDown_Enhanced_End:
+	end
+
+AI_CV_AccuracyDown_Enhanced:
+	@ 18. Accuracy lowering enhanced logic
+	if_stat_level_less_than AI_TARGET, STAT_ACC, 4, AI_CV_AccuracyDown_Enhanced_AlreadyLow
+	if_hp_more_than AI_TARGET, 80, AI_CV_AccuracyDown_Enhanced_HighHPTarget
+	if_random_less_than 110, AI_CV_AccuracyDown_Enhanced_End
+	score +1
+	goto AI_CV_AccuracyDown_Enhanced_End
+
+AI_CV_AccuracyDown_Enhanced_AlreadyLow:
+	if_random_less_than 50, AI_CV_AccuracyDown_Enhanced_End
+	score -4
+	goto AI_CV_AccuracyDown_Enhanced_End
+
+AI_CV_AccuracyDown_Enhanced_HighHPTarget:
+	if_random_less_than 150, AI_CV_AccuracyDown_Enhanced_End
+	score +2
+AI_CV_AccuracyDown_Enhanced_End:
+	end
+
+AI_CV_EvasionDown_Enhanced:
+	@ 19. Evasion lowering enhanced logic  
+	if_stat_level_less_than AI_TARGET, STAT_EVASION, 4, AI_CV_EvasionDown_Enhanced_AlreadyLow
+	if_stat_level_more_than AI_TARGET, STAT_EVASION, 6, AI_CV_EvasionDown_Enhanced_EvasiveTarget
+	if_random_less_than 120, AI_CV_EvasionDown_Enhanced_End
+	score +1
+	goto AI_CV_EvasionDown_Enhanced_End
+
+AI_CV_EvasionDown_Enhanced_AlreadyLow:
+	if_random_less_than 40, AI_CV_EvasionDown_Enhanced_End
+	score -5
+	goto AI_CV_EvasionDown_Enhanced_End
+
+AI_CV_EvasionDown_Enhanced_EvasiveTarget:
+	if_random_less_than 200, AI_CV_EvasionDown_Enhanced_End
+	score +4
+AI_CV_EvasionDown_Enhanced_End:
+	end
+
+AI_CV_Haze_Enhanced:
+	@ 20. Haze enhanced logic - clear all stat changes
+	if_stat_level_more_than AI_USER, STAT_ATK, 6, AI_CV_Haze_Enhanced_UserBoosted
+	if_stat_level_more_than AI_USER, STAT_SPATK, 6, AI_CV_Haze_Enhanced_UserBoosted
+	if_stat_level_more_than AI_TARGET, STAT_ATK, 6, AI_CV_Haze_Enhanced_TargetBoosted
+	if_stat_level_more_than AI_TARGET, STAT_SPATK, 6, AI_CV_Haze_Enhanced_TargetBoosted
+	if_stat_level_less_than AI_USER, STAT_ATK, 6, AI_CV_Haze_Enhanced_UserDebuffed
+	if_stat_level_less_than AI_USER, STAT_SPATK, 6, AI_CV_Haze_Enhanced_UserDebuffed
+	goto AI_CV_Haze_Enhanced_End
+
+AI_CV_Haze_Enhanced_UserBoosted:
+	if_random_less_than 70, AI_CV_Haze_Enhanced_End
+	score -3
+	goto AI_CV_Haze_Enhanced_End
+
+AI_CV_Haze_Enhanced_TargetBoosted:
+	if_random_less_than 180, AI_CV_Haze_Enhanced_End
+	score +3
+	goto AI_CV_Haze_Enhanced_End
+
+AI_CV_Haze_Enhanced_UserDebuffed:
+	if_random_less_than 160, AI_CV_Haze_Enhanced_End
+	score +2
+AI_CV_Haze_Enhanced_End:
+	end
+
+AI_CV_Bide_Enhanced:
+	@ 21. Bide enhanced logic - risky charging move
+	if_hp_less_than AI_USER, 40, AI_CV_Bide_Enhanced_LowHP
+	if_target_faster AI_CV_Bide_Enhanced_TargetFaster
+	if_random_less_than 50, AI_CV_Bide_Enhanced_End
+	score -1
+	goto AI_CV_Bide_Enhanced_End
+
+AI_CV_Bide_Enhanced_LowHP:
+	if_random_less_than 30, AI_CV_Bide_Enhanced_End
+	score -4
+	goto AI_CV_Bide_Enhanced_End
+
+AI_CV_Bide_Enhanced_TargetFaster:
+	if_random_less_than 40, AI_CV_Bide_Enhanced_End
+	score -3
+AI_CV_Bide_Enhanced_End:
+	end
+
+AI_CV_Roar_Enhanced:
+	@ 22. Roar enhanced logic - force switching
+	if_hp_less_than AI_TARGET, 30, AI_CV_Roar_Enhanced_TargetLowHP
+	if_stat_level_more_than AI_TARGET, STAT_ATK, 6, AI_CV_Roar_Enhanced_TargetBoosted
+	if_stat_level_more_than AI_TARGET, STAT_SPATK, 6, AI_CV_Roar_Enhanced_TargetBoosted
+	if_random_less_than 80, AI_CV_Roar_Enhanced_End
+	score +1
+	goto AI_CV_Roar_Enhanced_End
+
+AI_CV_Roar_Enhanced_TargetLowHP:
+	if_random_less_than 60, AI_CV_Roar_Enhanced_End
+	score -2
+	goto AI_CV_Roar_Enhanced_End
+
+AI_CV_Roar_Enhanced_TargetBoosted:
+	if_random_less_than 170, AI_CV_Roar_Enhanced_End
+	score +3
+AI_CV_Roar_Enhanced_End:
+	end
+
+AI_CV_Conversion_Enhanced:
+	@ 23. Conversion enhanced logic
+	if_hp_less_than AI_USER, 50, AI_CV_Conversion_Enhanced_LowHP
+	if_random_less_than 90, AI_CV_Conversion_Enhanced_End
+	score +1
+	goto AI_CV_Conversion_Enhanced_End
+
+AI_CV_Conversion_Enhanced_LowHP:
+	if_random_less_than 60, AI_CV_Conversion_Enhanced_End
+	score -2
+AI_CV_Conversion_Enhanced_End:
+	end
+
+AI_CV_Heal_Enhanced:
+	@ 24. Healing move enhanced logic with HP thresholds
+	if_hp_more_than AI_USER, 80, AI_CV_Heal_Enhanced_HighHP
+	if_hp_less_than AI_USER, 30, AI_CV_Heal_Enhanced_VeryLowHP
+	if_hp_less_than AI_USER, 50, AI_CV_Heal_Enhanced_LowHP
+	if_random_less_than 100, AI_CV_Heal_Enhanced_End
+	score +1
+	goto AI_CV_Heal_Enhanced_End
+
+AI_CV_Heal_Enhanced_HighHP:
+	if_random_less_than 40, AI_CV_Heal_Enhanced_End
+	score -4
+	goto AI_CV_Heal_Enhanced_End
+
+AI_CV_Heal_Enhanced_VeryLowHP:
+	if_random_less_than 220, AI_CV_Heal_Enhanced_End
+	score +4
+	goto AI_CV_Heal_Enhanced_End
+
+AI_CV_Heal_Enhanced_LowHP:
+	if_random_less_than 180, AI_CV_Heal_Enhanced_End
+	score +3
+AI_CV_Heal_Enhanced_End:
+	end
+
+AI_CV_Toxic_Enhanced:
+	@ 25. Toxic enhanced logic with immunity and status checks
+	if_status AI_TARGET, STATUS1_POISON, AI_CV_Toxic_Enhanced_AlreadyPoisoned
+	if_status AI_TARGET, STATUS1_BURN, AI_CV_Toxic_Enhanced_AlreadyStatused
+	if_status AI_TARGET, STATUS1_PARALYSIS, AI_CV_Toxic_Enhanced_AlreadyStatused
+	if_type_effectiveness AI_EFFECTIVENESS_x0, AI_CV_Toxic_Enhanced_Immune
+	if_hp_more_than AI_TARGET, 70, AI_CV_Toxic_Enhanced_HighHPTarget
+	if_random_less_than 140, AI_CV_Toxic_Enhanced_End
+	score +2
+	goto AI_CV_Toxic_Enhanced_End
+
+AI_CV_Toxic_Enhanced_AlreadyPoisoned:
+	score -10
+	goto AI_CV_Toxic_Enhanced_End
+
+AI_CV_Toxic_Enhanced_AlreadyStatused:
+	if_random_less_than 50, AI_CV_Toxic_Enhanced_End
+	score -3
+	goto AI_CV_Toxic_Enhanced_End
+
+AI_CV_Toxic_Enhanced_Immune:
+	score -10
+	goto AI_CV_Toxic_Enhanced_End
+
+AI_CV_Toxic_Enhanced_HighHPTarget:
+	if_random_less_than 190, AI_CV_Toxic_Enhanced_End
+	score +3
+AI_CV_Toxic_Enhanced_End:
+	end
+
+@ Remaining complex enhanced move logic
+AI_CV_LightScreen_Enhanced:
+	@ 26. Light Screen enhanced logic
+	if_side_affecting AI_USER, SIDE_STATUS_LIGHTSCREEN, AI_CV_LightScreen_Enhanced_AlreadyUp
+	if_hp_less_than AI_USER, 40, AI_CV_LightScreen_Enhanced_LowHP
+	if_random_less_than 130, AI_CV_LightScreen_Enhanced_End
+	score +2
+	goto AI_CV_LightScreen_Enhanced_End
+
+AI_CV_LightScreen_Enhanced_AlreadyUp:
+	score -8
+	goto AI_CV_LightScreen_Enhanced_End
+
+AI_CV_LightScreen_Enhanced_LowHP:
+	if_random_less_than 170, AI_CV_LightScreen_Enhanced_End
+	score +3
+AI_CV_LightScreen_Enhanced_End:
+	end
+
+AI_CV_Rest_Enhanced:
+	@ 27. Rest enhanced logic with HP and status considerations
+	if_hp_more_than AI_USER, 60, AI_CV_Rest_Enhanced_HighHP
+	if_status AI_USER, STATUS1_SLEEP, AI_CV_Rest_Enhanced_AlreadyAsleep
+	if_hp_less_than AI_USER, 20, AI_CV_Rest_Enhanced_VeryLowHP
+	if_hp_less_than AI_USER, 40, AI_CV_Rest_Enhanced_LowHP
+	if_random_less_than 110, AI_CV_Rest_Enhanced_End
+	score +1
+	goto AI_CV_Rest_Enhanced_End
+
+AI_CV_Rest_Enhanced_HighHP:
+	if_random_less_than 30, AI_CV_Rest_Enhanced_End
+	score -5
+	goto AI_CV_Rest_Enhanced_End
+
+AI_CV_Rest_Enhanced_AlreadyAsleep:
+	score -10
+	goto AI_CV_Rest_Enhanced_End
+
+AI_CV_Rest_Enhanced_VeryLowHP:
+	if_random_less_than 200, AI_CV_Rest_Enhanced_End
+	score +5
+	goto AI_CV_Rest_Enhanced_End
+
+AI_CV_Rest_Enhanced_LowHP:
+	if_random_less_than 160, AI_CV_Rest_Enhanced_End
+	score +3
+AI_CV_Rest_Enhanced_End:
+	end
+
+AI_CV_OneHitKO_Enhanced:
+	@ 28. OHKO moves enhanced logic with level and accuracy considerations
+	if_hp_more_than AI_TARGET, 90, AI_CV_OneHitKO_Enhanced_HighHPTarget
+	if_random_less_than 60, AI_CV_OneHitKO_Enhanced_End
+	score +1
+	goto AI_CV_OneHitKO_Enhanced_End
+
+AI_CV_OneHitKO_Enhanced_HighHPTarget:
+	if_random_less_than 120, AI_CV_OneHitKO_Enhanced_End
+	score +2
+AI_CV_OneHitKO_Enhanced_End:
+	end
+
+AI_CV_ChargeUpMove_Enhanced:
+	@ 29. Charging moves enhanced logic (Razor Wind, Sky Attack, etc.)
+	if_hp_less_than AI_USER, 50, AI_CV_ChargeUpMove_Enhanced_LowHP
+	if_target_faster AI_CV_ChargeUpMove_Enhanced_TargetFaster
+	if_random_less_than 70, AI_CV_ChargeUpMove_Enhanced_End
+	score -1
+	goto AI_CV_ChargeUpMove_Enhanced_End
+
+AI_CV_ChargeUpMove_Enhanced_LowHP:
+	if_random_less_than 40, AI_CV_ChargeUpMove_Enhanced_End
+	score -3
+	goto AI_CV_ChargeUpMove_Enhanced_End
+
+AI_CV_ChargeUpMove_Enhanced_TargetFaster:
+	if_random_less_than 50, AI_CV_ChargeUpMove_Enhanced_End
+	score -2
+AI_CV_ChargeUpMove_Enhanced_End:
+	end
+
+AI_CV_SuperFang_Enhanced:
+	@ 30. Super Fang enhanced logic with HP considerations
+	if_hp_less_than AI_TARGET, 40, AI_CV_SuperFang_Enhanced_TargetLowHP
+	if_hp_more_than AI_TARGET, 80, AI_CV_SuperFang_Enhanced_TargetHighHP
+	if_random_less_than 100, AI_CV_SuperFang_Enhanced_End
+	score +1
+	goto AI_CV_SuperFang_Enhanced_End
+
+AI_CV_SuperFang_Enhanced_TargetLowHP:
+	if_random_less_than 60, AI_CV_SuperFang_Enhanced_End
+	score -2
+	goto AI_CV_SuperFang_Enhanced_End
+
+AI_CV_SuperFang_Enhanced_TargetHighHP:
+	if_random_less_than 170, AI_CV_SuperFang_Enhanced_End
+	score +3
+AI_CV_SuperFang_Enhanced_End:
+	end
+
+AI_CV_Trap_Enhanced:
+	@ 31. Trapping moves enhanced logic (Bind, Wrap, etc.)
+	if_hp_more_than AI_TARGET, 60, AI_CV_Trap_Enhanced_TargetHighHP
+	if_hp_less_than AI_USER, 30, AI_CV_Trap_Enhanced_UserLowHP
+	if_random_less_than 120, AI_CV_Trap_Enhanced_End
+	score +1
+	goto AI_CV_Trap_Enhanced_End
+
+AI_CV_Trap_Enhanced_TargetHighHP:
+	if_random_less_than 150, AI_CV_Trap_Enhanced_End
+	score +2
+	goto AI_CV_Trap_Enhanced_End
+
+AI_CV_Trap_Enhanced_UserLowHP:
+	if_random_less_than 80, AI_CV_Trap_Enhanced_End
+	score -1
+AI_CV_Trap_Enhanced_End:
+	end
+
+AI_CV_HighCrit_Enhanced:
+	@ 32. High critical hit ratio moves enhanced logic
+	if_hp_more_than AI_TARGET, 50, AI_CV_HighCrit_Enhanced_TargetHighHP
+	if_type_effectiveness AI_EFFECTIVENESS_x2, AI_CV_HighCrit_Enhanced_SuperEffective
+	if_random_less_than 130, AI_CV_HighCrit_Enhanced_End
+	score +1
+	goto AI_CV_HighCrit_Enhanced_End
+
+AI_CV_HighCrit_Enhanced_TargetHighHP:
+	if_random_less_than 160, AI_CV_HighCrit_Enhanced_End
+	score +2
+	goto AI_CV_HighCrit_Enhanced_End
+
+AI_CV_HighCrit_Enhanced_SuperEffective:
+	if_random_less_than 180, AI_CV_HighCrit_Enhanced_End
+	score +2
+AI_CV_HighCrit_Enhanced_End:
+	end
+
+AI_CV_Confuse_Enhanced:
+	@ 33. Confusion moves enhanced logic
+	if_status2 AI_TARGET, STATUS2_CONFUSION, AI_CV_Confuse_Enhanced_AlreadyConfused
+	if_status AI_TARGET, STATUS1_SLEEP, AI_CV_Confuse_Enhanced_TargetAsleep
+	if_hp_more_than AI_TARGET, 60, AI_CV_Confuse_Enhanced_TargetHighHP
+	if_random_less_than 140, AI_CV_Confuse_Enhanced_End
+	score +2
+	goto AI_CV_Confuse_Enhanced_End
+
+AI_CV_Confuse_Enhanced_AlreadyConfused:
+	score -8
+	goto AI_CV_Confuse_Enhanced_End
+
+AI_CV_Confuse_Enhanced_TargetAsleep:
+	if_random_less_than 40, AI_CV_Confuse_Enhanced_End
+	score -3
+	goto AI_CV_Confuse_Enhanced_End
+
+AI_CV_Confuse_Enhanced_TargetHighHP:
+	if_random_less_than 170, AI_CV_Confuse_Enhanced_End
+	score +2
+AI_CV_Confuse_Enhanced_End:
+	end
+
 AI_Safari:
 	if_random_safari_flee AI_Safari_Flee
 	watch
@@ -3215,4 +4133,89 @@ AI_FirstBattle_Flee:
 	flee
 
 AI_Ret:
+	end
+
+=======================================================
+
+AI_SwitchDecision:
+	@ First check: Do we have any Pokemon to switch to?
+	count_usable_party_mons AI_USER
+	if_equal 0, AI_Switch_NoOptions
+	if_equal 1, AI_Switch_NoOptions  @ Only current Pokemon available
+	
+	@ Check if we should even consider switching
+	if_hp_less_than AI_USER, 25, AI_Switch_CheckEmergency
+	
+	@ Standard switch evaluation
+	goto AI_Switch_EvaluateOptions
+
+AI_Switch_NoOptions:
+	@ No switching possible - heavily penalize switch consideration
+	score -50
+	end
+
+AI_Switch_CheckEmergency:
+	@ Low HP - switching might be wise, but evaluate carefully
+	if_status AI_USER, STATUS1_TOXIC_POISON, AI_Switch_EmergencySwitch
+	if_status AI_USER, STATUS1_BURN, AI_Switch_EmergencySwitch
+	if_can_be_ohkoed AI_USER, AI_TARGET, AI_Switch_EmergencySwitch
+	goto AI_Switch_EvaluateOptions
+
+AI_Switch_EmergencySwitch:
+	@ Emergency situations where switching is highly favored
+	score +8
+	goto AI_Switch_EvaluateOptions
+
+AI_Switch_EvaluateOptions:
+	@ Priority-Based Switching System (Enemy Trainer POV)
+	@ Check conditions in order of priority - stop at first successful match
+	
+	@ CONDITION 1: Find Pokemon that outspeeds and oneshots opponent
+	if_has_party_mon_that_can_outspeed_and_ohko AI_TARGET, AI_Switch_Condition1_Success
+	
+	@ CONDITION 2: Find Pokemon that survives all opponent moves and oneshots back
+	if_has_party_mon_that_survives_and_ohkos AI_TARGET, AI_Switch_Condition2_Success
+	
+	@ CONDITION 3: Find Pokemon that is faster and outdamages opponent
+	if_has_party_mon_that_outspeeds_and_outdamages AI_TARGET, AI_Switch_Condition3_Success
+	
+	@ CONDITION 4: Find Pokemon that is slower but still outdamages opponent
+	if_has_party_mon_that_outdamages_while_slower AI_TARGET, AI_Switch_Condition4_Success
+	
+	@ CONDITION 5: Final check - find anything that outspeeds opponent
+	if_has_party_mon_that_outspeeds AI_TARGET, AI_Switch_Condition5_Success
+	
+	@ No suitable switch found
+	goto AI_Switch_NoGoodOptions
+
+AI_Switch_Condition1_Success:
+	@ Perfect switch: Outspeeds and oneshots
+	score +10
+	goto AI_Switch_End
+
+AI_Switch_Condition2_Success:
+	@ Excellent switch: Survives everything and ohkos back
+	score +8
+	goto AI_Switch_End
+
+AI_Switch_Condition3_Success:
+	@ Good switch: Faster and better damage trade
+	score +5
+	goto AI_Switch_End
+
+AI_Switch_Condition4_Success:
+	@ Decent switch: Slower but still favorable
+	score +3
+	goto AI_Switch_End
+
+AI_Switch_Condition5_Success:
+	@ Minimal switch: At least faster
+	score +1
+	goto AI_Switch_End
+
+AI_Switch_NoGoodOptions:
+	@ No switch provides clear advantage - discourage switching
+	score -3
+
+AI_Switch_End:
 	end

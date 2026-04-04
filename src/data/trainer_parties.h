@@ -16612,14 +16612,14 @@ static const struct TrainerMonItemCustomMoves sParty_Falkner_Hard[] = {
     },
     {
     .iv = 31,
-    .lvl = 9,
+    .lvl = 10,
     .species = SPECIES_TAILLOW,
     .heldItem = ITEM_NONE,
     .moves = {MOVE_PECK, MOVE_GROWL, MOVE_FOCUS_ENERGY, MOVE_QUICK_ATTACK}
     },
     {
     .iv = 31,
-    .lvl = 10,
+    .lvl = 11,
     .species = SPECIES_NOCTOWL,
     .heldItem = ITEM_SITRUS_BERRY,
     .moves = {MOVE_AERIAL_ACE, MOVE_FAINT_ATTACK, MOVE_HYPNOSIS, MOVE_REFLECT}
