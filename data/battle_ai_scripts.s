@@ -4135,7 +4135,7 @@ AI_FirstBattle_Flee:
 AI_Ret:
 	end
 
-=======================================================
+@ =======================================================
 
 AI_SwitchDecision:
 	@ First check: Do we have any Pokemon to switch to?

@@ -2366,6 +2366,14 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
     if (trainerNum == TRAINER_SECRET_BASE)
         return 0;
 
+    // Battle frontier / trainer hill / eReader battles pre-fill gEnemyParty via their
+    // own systems (FillFrontierTrainerParty, FillHillTrainerParty, etc.).  Letting this
+    // function run would zero and then overwrite that party from the regular gTrainers[]
+    // array using the frontier trainer ID as an index, producing Decamarks, 6-mon teams,
+    // and every Trainer Hill trainer appearing to have the same Pokémon.
+    if (gBattleTypeFlags & (BATTLE_TYPE_FRONTIER | BATTLE_TYPE_TRAINER_HILL | BATTLE_TYPE_EREADER_TRAINER))
+        return 0;
+
     // --- Changes for Hardmode ---
     const struct Trainer *trainer = &gTrainers[trainerNum];
     union TrainerMonPtr partyData;

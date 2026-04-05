@@ -551,6 +551,46 @@
 	.4byte \param2
 	.endm
 
+	@ battler_def: who might be OHKOed; battler_atk: who might deal the OHKO.
+	@ Branches if attacker's estimated best move would OHKO defender (stat-based estimate).
+	.macro if_can_be_ohkoed battler_def:req, battler_atk:req, ptr:req
+	.byte 0x63
+	.byte \battler_def
+	.byte \battler_atk
+	.4byte \ptr
+	.endm
+
+	@ battler: the opponent to check against. Iterates AI_USER's benched party.
+	.macro if_has_party_mon_that_can_outspeed_and_ohko battler:req, ptr:req
+	.byte 0x64
+	.byte \battler
+	.4byte \ptr
+	.endm
+
+	.macro if_has_party_mon_that_survives_and_ohkos battler:req, ptr:req
+	.byte 0x65
+	.byte \battler
+	.4byte \ptr
+	.endm
+
+	.macro if_has_party_mon_that_outspeeds_and_outdamages battler:req, ptr:req
+	.byte 0x66
+	.byte \battler
+	.4byte \ptr
+	.endm
+
+	.macro if_has_party_mon_that_outdamages_while_slower battler:req, ptr:req
+	.byte 0x67
+	.byte \battler
+	.4byte \ptr
+	.endm
+
+	.macro if_has_party_mon_that_outspeeds battler:req, ptr:req
+	.byte 0x68
+	.byte \battler
+	.4byte \ptr
+	.endm
+
 @ useful script macros
 	.macro get_curr_move_type
 	get_type AI_TYPE_MOVE

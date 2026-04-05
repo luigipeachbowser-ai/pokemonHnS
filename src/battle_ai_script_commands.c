@@ -149,6 +149,12 @@ static void Cmd_is_of_type(void);
 static void Cmd_if_target_is_ally(void);
 static void Cmd_if_flash_fired(void);
 static void Cmd_if_holds_item(void);
+static void Cmd_if_can_be_ohkoed(void);
+static void Cmd_if_has_party_mon_that_can_outspeed_and_ohko(void);
+static void Cmd_if_has_party_mon_that_survives_and_ohkos(void);
+static void Cmd_if_has_party_mon_that_outspeeds_and_outdamages(void);
+static void Cmd_if_has_party_mon_that_outdamages_while_slower(void);
+static void Cmd_if_has_party_mon_that_outspeeds(void);
 
 // ewram
 EWRAM_DATA const u8 *gAIScriptPtr = NULL;
@@ -258,6 +264,12 @@ static const BattleAICmdFunc sBattleAICmdTable[] =
     Cmd_check_ability,                              // 0x60
     Cmd_if_flash_fired,                             // 0x61
     Cmd_if_holds_item,                              // 0x62
+    Cmd_if_can_be_ohkoed,                           // 0x63
+    Cmd_if_has_party_mon_that_can_outspeed_and_ohko, // 0x64
+    Cmd_if_has_party_mon_that_survives_and_ohkos,   // 0x65
+    Cmd_if_has_party_mon_that_outspeeds_and_outdamages, // 0x66
+    Cmd_if_has_party_mon_that_outdamages_while_slower, // 0x67
+    Cmd_if_has_party_mon_that_outspeeds,            // 0x68
 };
 
 // For the purposes of determining the most powerful move in a moveset, these
@@ -2267,6 +2279,477 @@ static void Cmd_if_flash_fired(void)
         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
     else
         gAIScriptPtr += 6;
+}
+
+// Scan gTypeEffectiveness_Old for matchup flags given explicit defender types.
+// Returns MOVE_RESULT_DOESNT_AFFECT_FOE / MOVE_RESULT_NOT_VERY_EFFECTIVE / MOVE_RESULT_SUPER_EFFECTIVE, or 0 for neutral.
+static u32 AI_GetTypeMatchupFlags(u8 moveType, u8 defType1, u8 defType2)
+{
+    s32 i = 0;
+    u32 flags = 0;
+
+    while (TYPE_EFFECT_ATK_TYPE_OLD(i) != TYPE_ENDTABLE)
+    {
+        if (TYPE_EFFECT_ATK_TYPE_OLD(i) == TYPE_FORESIGHT)
+        {
+            i += 3;
+            continue;
+        }
+        if (TYPE_EFFECT_ATK_TYPE_OLD(i) == moveType)
+        {
+            u8 mult = TYPE_EFFECT_MULTIPLIER_OLD(i);
+            u8 dt   = TYPE_EFFECT_DEF_TYPE_OLD(i);
+            if (dt == defType1 || (dt == defType2 && defType1 != defType2))
+            {
+                if (mult == TYPE_MUL_NO_EFFECT)
+                    return MOVE_RESULT_DOESNT_AFFECT_FOE;
+                else if (mult == TYPE_MUL_NOT_EFFECTIVE)
+                {
+                    if (flags & MOVE_RESULT_SUPER_EFFECTIVE)
+                        flags &= ~MOVE_RESULT_SUPER_EFFECTIVE;
+                    else
+                        flags |= MOVE_RESULT_NOT_VERY_EFFECTIVE;
+                }
+                else if (mult == TYPE_MUL_SUPER_EFFECTIVE)
+                {
+                    if (flags & MOVE_RESULT_NOT_VERY_EFFECTIVE)
+                        flags &= ~MOVE_RESULT_NOT_VERY_EFFECTIVE;
+                    else
+                        flags |= MOVE_RESULT_SUPER_EFFECTIVE;
+                }
+            }
+        }
+        i += 3;
+    }
+    return flags;
+}
+
+// Apply type-matchup flags and STAB to a base power.
+static u32 AI_ApplyTypeAndStab(u32 power, u32 typeFlags, bool8 stab)
+{
+    if (typeFlags & MOVE_RESULT_DOESNT_AFFECT_FOE)
+        return 0;
+    if (typeFlags & MOVE_RESULT_NOT_VERY_EFFECTIVE)
+        power /= 2;
+    else if (typeFlags & MOVE_RESULT_SUPER_EFFECTIVE)
+        power *= 2;
+    if (stab)
+        power = power * 3 / 2;
+    return power;
+}
+
+// Compute per-move estimated damage for a party mon attacking an active battler.
+// Uses the correct Atk/SpAtk and Def/SpDef pair for the move's category.
+static u32 AI_PartyMonMoveDamage(struct Pokemon *attacker, u8 defender,
+                                  u16 move, u8 aType1, u8 aType2)
+{
+    u8 moveType, category;
+    u32 typeFlags, level, offStat, defStat, effPower;
+    bool8 stab;
+
+    if (move == MOVE_NONE || gBattleMoves[move].power <= 1)
+        return 0;
+
+    moveType  = gBattleMoves[move].type;
+    category  = gBattleMoves[move].category;
+    typeFlags = AI_GetTypeMatchupFlags(moveType, gBattleMons[defender].type1, gBattleMons[defender].type2);
+    stab      = (aType1 == moveType || aType2 == moveType);
+    effPower  = AI_ApplyTypeAndStab(gBattleMoves[move].power, typeFlags, stab);
+    if (effPower == 0)
+        return 0;
+
+    level   = GetMonData(attacker, MON_DATA_LEVEL);
+    if (category == MOVE_CATEGORY_PHYSICAL)
+    {
+        offStat = GetMonData(attacker, MON_DATA_ATK);
+        defStat = gBattleMons[defender].defense;
+    }
+    else
+    {
+        offStat = GetMonData(attacker, MON_DATA_SPATK);
+        defStat = gBattleMons[defender].spDefense;
+    }
+    if (defStat == 0)
+        defStat = 1;
+    return (2 * level / 5 + 2) * effPower * offStat / defStat / 50 + 2;
+}
+
+// Compute per-move estimated damage for an active battler attacking a party mon.
+static u32 AI_ActiveMonMoveDamage(u8 attacker, struct Pokemon *defender,
+                                   u16 move, u8 aType1, u8 aType2)
+{
+    u8 moveType, category;
+    u32 typeFlags, level, offStat, defStat, effPower;
+    bool8 stab;
+
+    if (move == MOVE_NONE || gBattleMoves[move].power <= 1)
+        return 0;
+
+    moveType  = gBattleMoves[move].type;
+    category  = gBattleMoves[move].category;
+    typeFlags = GetTypeEffectiveness(defender, moveType);
+    stab      = (aType1 == moveType || aType2 == moveType);
+    effPower  = AI_ApplyTypeAndStab(gBattleMoves[move].power, typeFlags, stab);
+    if (effPower == 0)
+        return 0;
+
+    level   = gBattleMons[attacker].level;
+    if (category == MOVE_CATEGORY_PHYSICAL)
+    {
+        offStat = gBattleMons[attacker].attack;
+        defStat = GetMonData(defender, MON_DATA_DEF);
+    }
+    else
+    {
+        offStat = gBattleMons[attacker].spAttack;
+        defStat = GetMonData(defender, MON_DATA_SPDEF);
+    }
+    if (defStat == 0)
+        defStat = 1;
+    return (2 * level / 5 + 2) * effPower * offStat / defStat / 50 + 2;
+}
+
+// Helper: estimate damage a party mon would deal to an active battler.
+// Picks the move that deals the most actual damage, using the correct stat pair per move category.
+static u32 AI_EstimatePartyMonDmg(struct Pokemon *attacker, u8 defender)
+{
+    static const u8 sMoveDataKeys[MAX_MON_MOVES] = { MON_DATA_MOVE1, MON_DATA_MOVE2, MON_DATA_MOVE3, MON_DATA_MOVE4 };
+    u32 bestDmg = 0, dmg, i;
+    u16 species = GetMonData(attacker, MON_DATA_SPECIES);
+    u8 aType1   = GetTypeBySpecies(species, 1);
+    u8 aType2   = GetTypeBySpecies(species, 2);
+
+    for (i = 0; i < MAX_MON_MOVES; i++)
+    {
+        dmg = AI_PartyMonMoveDamage(attacker, defender,
+                                    GetMonData(attacker, sMoveDataKeys[i]),
+                                    aType1, aType2);
+        if (dmg > bestDmg)
+            bestDmg = dmg;
+    }
+    return bestDmg != 0 ? bestDmg : 1;
+}
+
+// Helper: estimate damage an active battler would deal to a party mon.
+// Picks the move that deals the most actual damage, using the correct stat pair per move category.
+static u32 AI_EstimateActiveDmg(u8 attacker, struct Pokemon *defender)
+{
+    u32 bestDmg = 0, dmg, i;
+    u8 aType1 = gBattleMons[attacker].type1;
+    u8 aType2 = gBattleMons[attacker].type2;
+
+    for (i = 0; i < MAX_MON_MOVES; i++)
+    {
+        dmg = AI_ActiveMonMoveDamage(attacker, defender,
+                                     gBattleMons[attacker].moves[i],
+                                     aType1, aType2);
+        if (dmg > bestDmg)
+            bestDmg = dmg;
+    }
+    return bestDmg != 0 ? bestDmg : 1;
+}
+
+// 0x63: if_can_be_ohkoed battler_def, battler_atk, ptr (7 bytes)
+// Branches if battler_atk's best move (type effectiveness, STAB, correct stat pair) would OHKO battler_def.
+static void Cmd_if_can_be_ohkoed(void)
+{
+    u8 bDef   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
+    u8 bAtk   = (gAIScriptPtr[2] == AI_USER) ? sBattler_AI : gBattlerTarget;
+    u8 aType1 = gBattleMons[bAtk].type1;
+    u8 aType2 = gBattleMons[bAtk].type2;
+    u32 bestDmg = 0, dmg, i;
+
+    for (i = 0; i < MAX_MON_MOVES; i++)
+    {
+        u16 move = gBattleMons[bAtk].moves[i];
+        if (move == MOVE_NONE || gBattleMoves[move].power <= 1)
+            continue;
+        {
+            u8 moveType   = gBattleMoves[move].type;
+            u8 category   = gBattleMoves[move].category;
+            u32 typeFlags  = AI_GetTypeMatchupFlags(moveType, gBattleMons[bDef].type1, gBattleMons[bDef].type2);
+            bool8 stab    = (aType1 == moveType || aType2 == moveType);
+            u32 effPower  = AI_ApplyTypeAndStab(gBattleMoves[move].power, typeFlags, stab);
+            u32 level     = gBattleMons[bAtk].level;
+            u32 offStat   = (category == MOVE_CATEGORY_PHYSICAL) ? gBattleMons[bAtk].attack : gBattleMons[bAtk].spAttack;
+            u32 defStat   = (category == MOVE_CATEGORY_PHYSICAL) ? gBattleMons[bDef].defense : gBattleMons[bDef].spDefense;
+            if (defStat == 0)
+                defStat = 1;
+            if (effPower > 0)
+                dmg = (2 * level / 5 + 2) * effPower * offStat / defStat / 50 + 2;
+            else
+                dmg = 0;
+            if (dmg > bestDmg)
+                bestDmg = dmg;
+        }
+    }
+
+    if (bestDmg >= gBattleMons[bDef].hp)
+        gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 3);
+    else
+        gAIScriptPtr += 7;
+}
+
+// 0x64: if_has_party_mon_that_can_outspeed_and_ohko battler_opp, ptr (6 bytes)
+// Branches if any of AI_USER's benched party members outspeeds battler_opp AND can OHKO it.
+static void Cmd_if_has_party_mon_that_can_outspeed_and_ohko(void)
+{
+    struct Pokemon *party;
+    u32 i;
+    u8 battlerId, opponent, battlerOnField1, battlerOnField2;
+    u32 oppSpeed, oppHp;
+
+    battlerId  = sBattler_AI;
+    opponent   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
+    oppSpeed   = gBattleMons[opponent].speed;
+    oppHp      = gBattleMons[opponent].hp;
+
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+    {
+        u32 position;
+        battlerOnField1 = gBattlerPartyIndexes[battlerId];
+        position = BATTLE_PARTNER(GetBattlerPosition(battlerId));
+        battlerOnField2 = gBattlerPartyIndexes[GetBattlerAtPosition(position)];
+    }
+    else
+    {
+        battlerOnField1 = gBattlerPartyIndexes[battlerId];
+        battlerOnField2 = battlerOnField1;
+    }
+
+    party = (GetBattlerSide(battlerId) == B_SIDE_PLAYER) ? gPlayerParty : gEnemyParty;
+
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        u16 species;
+        u32 monHp, monSpeed;
+
+        if (i == battlerOnField1 || i == battlerOnField2)
+            continue;
+        species = GetMonData(&party[i], MON_DATA_SPECIES_OR_EGG);
+        if (species == SPECIES_NONE || species == SPECIES_EGG)
+            continue;
+        monHp = GetMonData(&party[i], MON_DATA_HP);
+        if (monHp == 0)
+            continue;
+        monSpeed = GetMonData(&party[i], MON_DATA_SPEED);
+        if (monSpeed <= oppSpeed)
+            continue;
+        if (AI_EstimatePartyMonDmg(&party[i], opponent) >= oppHp)
+        {
+            gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+            return;
+        }
+    }
+    gAIScriptPtr += 6;
+}
+
+// 0x65: if_has_party_mon_that_survives_and_ohkos battler_opp, ptr (6 bytes)
+// Branches if any benched party member can survive battler_opp's best hit AND OHKO it back.
+static void Cmd_if_has_party_mon_that_survives_and_ohkos(void)
+{
+    struct Pokemon *party;
+    u32 i;
+    u8 battlerId, opponent, battlerOnField1, battlerOnField2;
+    u32 oppHp;
+
+    battlerId  = sBattler_AI;
+    opponent   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
+    oppHp      = gBattleMons[opponent].hp;
+
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+    {
+        u32 position;
+        battlerOnField1 = gBattlerPartyIndexes[battlerId];
+        position = BATTLE_PARTNER(GetBattlerPosition(battlerId));
+        battlerOnField2 = gBattlerPartyIndexes[GetBattlerAtPosition(position)];
+    }
+    else
+    {
+        battlerOnField1 = gBattlerPartyIndexes[battlerId];
+        battlerOnField2 = battlerOnField1;
+    }
+
+    party = (GetBattlerSide(battlerId) == B_SIDE_PLAYER) ? gPlayerParty : gEnemyParty;
+
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        u16 species;
+        u32 monHp;
+
+        if (i == battlerOnField1 || i == battlerOnField2)
+            continue;
+        species = GetMonData(&party[i], MON_DATA_SPECIES_OR_EGG);
+        if (species == SPECIES_NONE || species == SPECIES_EGG)
+            continue;
+        monHp = GetMonData(&party[i], MON_DATA_HP);
+        if (monHp == 0)
+            continue;
+        if (AI_EstimateActiveDmg(opponent, &party[i]) >= monHp)
+            continue; // Would not survive
+        if (AI_EstimatePartyMonDmg(&party[i], opponent) >= oppHp)
+        {
+            gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+            return;
+        }
+    }
+    gAIScriptPtr += 6;
+}
+
+// 0x66: if_has_party_mon_that_outspeeds_and_outdamages battler_opp, ptr (6 bytes)
+// Branches if any benched party member outspeeds battler_opp AND deals more damage than it receives.
+static void Cmd_if_has_party_mon_that_outspeeds_and_outdamages(void)
+{
+    struct Pokemon *party;
+    u32 i;
+    u8 battlerId, opponent, battlerOnField1, battlerOnField2;
+    u32 oppSpeed;
+
+    battlerId  = sBattler_AI;
+    opponent   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
+    oppSpeed   = gBattleMons[opponent].speed;
+
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+    {
+        u32 position;
+        battlerOnField1 = gBattlerPartyIndexes[battlerId];
+        position = BATTLE_PARTNER(GetBattlerPosition(battlerId));
+        battlerOnField2 = gBattlerPartyIndexes[GetBattlerAtPosition(position)];
+    }
+    else
+    {
+        battlerOnField1 = gBattlerPartyIndexes[battlerId];
+        battlerOnField2 = battlerOnField1;
+    }
+
+    party = (GetBattlerSide(battlerId) == B_SIDE_PLAYER) ? gPlayerParty : gEnemyParty;
+
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        u16 species;
+        u32 monHp, monSpeed;
+
+        if (i == battlerOnField1 || i == battlerOnField2)
+            continue;
+        species = GetMonData(&party[i], MON_DATA_SPECIES_OR_EGG);
+        if (species == SPECIES_NONE || species == SPECIES_EGG)
+            continue;
+        monHp = GetMonData(&party[i], MON_DATA_HP);
+        if (monHp == 0)
+            continue;
+        monSpeed = GetMonData(&party[i], MON_DATA_SPEED);
+        if (monSpeed <= oppSpeed)
+            continue;
+        if (AI_EstimatePartyMonDmg(&party[i], opponent) > AI_EstimateActiveDmg(opponent, &party[i]))
+        {
+            gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+            return;
+        }
+    }
+    gAIScriptPtr += 6;
+}
+
+// 0x67: if_has_party_mon_that_outdamages_while_slower battler_opp, ptr (6 bytes)
+// Branches if any benched party member is slower than battler_opp but has a favourable damage trade.
+static void Cmd_if_has_party_mon_that_outdamages_while_slower(void)
+{
+    struct Pokemon *party;
+    u32 i;
+    u8 battlerId, opponent, battlerOnField1, battlerOnField2;
+    u32 oppSpeed;
+
+    battlerId  = sBattler_AI;
+    opponent   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
+    oppSpeed   = gBattleMons[opponent].speed;
+
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+    {
+        u32 position;
+        battlerOnField1 = gBattlerPartyIndexes[battlerId];
+        position = BATTLE_PARTNER(GetBattlerPosition(battlerId));
+        battlerOnField2 = gBattlerPartyIndexes[GetBattlerAtPosition(position)];
+    }
+    else
+    {
+        battlerOnField1 = gBattlerPartyIndexes[battlerId];
+        battlerOnField2 = battlerOnField1;
+    }
+
+    party = (GetBattlerSide(battlerId) == B_SIDE_PLAYER) ? gPlayerParty : gEnemyParty;
+
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        u16 species;
+        u32 monHp, monSpeed;
+
+        if (i == battlerOnField1 || i == battlerOnField2)
+            continue;
+        species = GetMonData(&party[i], MON_DATA_SPECIES_OR_EGG);
+        if (species == SPECIES_NONE || species == SPECIES_EGG)
+            continue;
+        monHp = GetMonData(&party[i], MON_DATA_HP);
+        if (monHp == 0)
+            continue;
+        monSpeed = GetMonData(&party[i], MON_DATA_SPEED);
+        if (monSpeed >= oppSpeed) // Only check mons that are strictly slower
+            continue;
+        if (AI_EstimatePartyMonDmg(&party[i], opponent) > AI_EstimateActiveDmg(opponent, &party[i]))
+        {
+            gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+            return;
+        }
+    }
+    gAIScriptPtr += 6;
+}
+
+// 0x68: if_has_party_mon_that_outspeeds battler_opp, ptr (6 bytes)
+// Branches if any benched party member outspeeds battler_opp (no damage condition).
+static void Cmd_if_has_party_mon_that_outspeeds(void)
+{
+    struct Pokemon *party;
+    u32 i;
+    u8 battlerId, opponent, battlerOnField1, battlerOnField2;
+    u32 oppSpeed;
+
+    battlerId  = sBattler_AI;
+    opponent   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
+    oppSpeed   = gBattleMons[opponent].speed;
+
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+    {
+        u32 position;
+        battlerOnField1 = gBattlerPartyIndexes[battlerId];
+        position = BATTLE_PARTNER(GetBattlerPosition(battlerId));
+        battlerOnField2 = gBattlerPartyIndexes[GetBattlerAtPosition(position)];
+    }
+    else
+    {
+        battlerOnField1 = gBattlerPartyIndexes[battlerId];
+        battlerOnField2 = battlerOnField1;
+    }
+
+    party = (GetBattlerSide(battlerId) == B_SIDE_PLAYER) ? gPlayerParty : gEnemyParty;
+
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        u16 species;
+        u32 monHp;
+
+        if (i == battlerOnField1 || i == battlerOnField2)
+            continue;
+        species = GetMonData(&party[i], MON_DATA_SPECIES_OR_EGG);
+        if (species == SPECIES_NONE || species == SPECIES_EGG)
+            continue;
+        monHp = GetMonData(&party[i], MON_DATA_HP);
+        if (monHp == 0)
+            continue;
+        if (GetMonData(&party[i], MON_DATA_SPEED) > oppSpeed)
+        {
+            gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+            return;
+        }
+    }
+    gAIScriptPtr += 6;
 }
 
 static void AIStackPushVar(const u8 *var)
