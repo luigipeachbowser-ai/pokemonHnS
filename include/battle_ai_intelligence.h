@@ -3,7 +3,7 @@
 
 #include "constants/battle_ai.h"
 
-// AI Intelligence Tiers - Based on comprehensive AI documentation
+// AI Intelligence Tiers - Based on comprehensive AI documentation + Run&Bun research swap in logic
 // Each tier represents different levels of strategic thinking
 
 // Tier 0: Beginner AI (Basic trainers, wild Pokemon, early game)

@@ -15,6 +15,7 @@
 #include "constants/battle_move_effects.h"
 #include "constants/items.h"
 #include "constants/moves.h"
+#include "gba/isagbprint.h"
 
 #define AI_ACTION_DONE          (1 << 0)
 #define AI_ACTION_FLEE          (1 << 1)
@@ -414,6 +415,7 @@ static u8 ChooseMoveOrAction_Singles(void)
 {
     u8 currentMoveArray[MAX_MON_MOVES];
     u8 consideredMoveArray[MAX_MON_MOVES];
+    u8 chosenMoveIndex;
     u8 numOfBestMoves;
     s32 i;
 
@@ -433,9 +435,15 @@ static u8 ChooseMoveOrAction_Singles(void)
 
     // Check special AI actions.
     if (AI_THINKING_STRUCT->aiAction & AI_ACTION_FLEE)
+    {
+        MgbaPrintf(MGBA_LOG_DEBUG, "[AI] final action: FLEE");
         return AI_CHOICE_FLEE;
+    }
     if (AI_THINKING_STRUCT->aiAction & AI_ACTION_WATCH)
+    {
+        MgbaPrintf(MGBA_LOG_DEBUG, "[AI] final action: WATCH");
         return AI_CHOICE_WATCH;
+    }
 
     numOfBestMoves = 1;
     currentMoveArray[0] = AI_THINKING_STRUCT->score[0];
@@ -459,7 +467,25 @@ static u8 ChooseMoveOrAction_Singles(void)
             }
         }
     }
-    return consideredMoveArray[Random() % numOfBestMoves];
+    chosenMoveIndex = consideredMoveArray[Random() % numOfBestMoves];
+    MgbaPrintf(MGBA_LOG_DEBUG,
+        "[AI] scoreboard: 0:%S(%u)=%d 1:%S(%u)=%d 2:%S(%u)=%d 3:%S(%u)=%d bestScore=%d ties=%u",
+        gMoveNames[gBattleMons[sBattler_AI].moves[0]], gBattleMons[sBattler_AI].moves[0], AI_THINKING_STRUCT->score[0],
+        gMoveNames[gBattleMons[sBattler_AI].moves[1]], gBattleMons[sBattler_AI].moves[1], AI_THINKING_STRUCT->score[1],
+        gMoveNames[gBattleMons[sBattler_AI].moves[2]], gBattleMons[sBattler_AI].moves[2], AI_THINKING_STRUCT->score[2],
+        gMoveNames[gBattleMons[sBattler_AI].moves[3]], gBattleMons[sBattler_AI].moves[3], AI_THINKING_STRUCT->score[3],
+        currentMoveArray[0], numOfBestMoves);
+    MgbaPrintf(MGBA_LOG_DEBUG,
+        "[AI] final move: slot=%u id=%u name=%S score=%d | scores=[%d,%d,%d,%d]",
+        chosenMoveIndex,
+        gBattleMons[sBattler_AI].moves[chosenMoveIndex],
+        gMoveNames[gBattleMons[sBattler_AI].moves[chosenMoveIndex]],
+        AI_THINKING_STRUCT->score[chosenMoveIndex],
+        AI_THINKING_STRUCT->score[0],
+        AI_THINKING_STRUCT->score[1],
+        AI_THINKING_STRUCT->score[2],
+        AI_THINKING_STRUCT->score[3]);
+    return chosenMoveIndex;
 }
 
 static u8 ChooseMoveOrAction_Doubles(void)
@@ -2484,8 +2510,14 @@ static void Cmd_if_can_be_ohkoed(void)
         }
     }
 
+    if (AI_THINKING_STRUCT->movesetIndex == 0)
+        MgbaPrintf(MGBA_LOG_DEBUG, "[AI] if_can_be_ohkoed: bestDmg=%u hp=%u -> %s",
+            bestDmg, gBattleMons[bDef].hp,
+            bestDmg >= gBattleMons[bDef].hp ? "BRANCH" : "no");
     if (bestDmg >= gBattleMons[bDef].hp)
+    {
         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 3);
+    }
     else
         gAIScriptPtr += 7;
 }
@@ -2498,6 +2530,9 @@ static void Cmd_if_has_party_mon_that_can_outspeed_and_ohko(void)
     u32 i;
     u8 battlerId, opponent, battlerOnField1, battlerOnField2;
     u32 oppSpeed, oppHp;
+    s32 winnerSlot = -1;
+    u32 winnerDmg = 0;
+    u32 winnerSpeed = 0;
 
     battlerId  = sBattler_AI;
     opponent   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
@@ -2535,12 +2570,23 @@ static void Cmd_if_has_party_mon_that_can_outspeed_and_ohko(void)
         monSpeed = GetMonData(&party[i], MON_DATA_SPEED);
         if (monSpeed <= oppSpeed)
             continue;
-        if (AI_EstimatePartyMonDmg(&party[i], opponent) >= oppHp)
         {
-            gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
-            return;
+            u32 dmg = AI_EstimatePartyMonDmg(&party[i], opponent);
+            if (dmg >= oppHp)
+            {
+                winnerSlot = i;
+                winnerDmg = dmg;
+                winnerSpeed = monSpeed;
+                if (AI_THINKING_STRUCT->movesetIndex == 0)
+                    MgbaPrintf(MGBA_LOG_DEBUG, "[AI] switch branch C1 outspd_ohko: slot=%d spd=%u>%u dmg=%u>=%u",
+                        winnerSlot, winnerSpeed, oppSpeed, winnerDmg, oppHp);
+                gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+                return;
+            }
         }
     }
+    if (AI_THINKING_STRUCT->movesetIndex == 0)
+        MgbaPrintf(MGBA_LOG_DEBUG, "[AI] switch C1 outspd_ohko: no branch");
     gAIScriptPtr += 6;
 }
 
@@ -2552,6 +2598,10 @@ static void Cmd_if_has_party_mon_that_survives_and_ohkos(void)
     u32 i;
     u8 battlerId, opponent, battlerOnField1, battlerOnField2;
     u32 oppHp;
+    s32 winnerSlot = -1;
+    u32 winnerInDmg = 0;
+    u32 winnerOutDmg = 0;
+    u32 winnerHp = 0;
 
     battlerId  = sBattler_AI;
     opponent   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
@@ -2585,14 +2635,27 @@ static void Cmd_if_has_party_mon_that_survives_and_ohkos(void)
         monHp = GetMonData(&party[i], MON_DATA_HP);
         if (monHp == 0)
             continue;
-        if (AI_EstimateActiveDmg(opponent, &party[i]) >= monHp)
-            continue; // Would not survive
-        if (AI_EstimatePartyMonDmg(&party[i], opponent) >= oppHp)
         {
-            gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
-            return;
+            u32 inDmg  = AI_EstimateActiveDmg(opponent, &party[i]);
+            u32 outDmg = AI_EstimatePartyMonDmg(&party[i], opponent);
+            if (inDmg >= monHp)
+                continue; // Would not survive
+            if (outDmg >= oppHp)
+            {
+                winnerSlot = i;
+                winnerInDmg = inDmg;
+                winnerOutDmg = outDmg;
+                winnerHp = monHp;
+                if (AI_THINKING_STRUCT->movesetIndex == 0)
+                    MgbaPrintf(MGBA_LOG_DEBUG, "[AI] switch branch C2 survives_ohkos: slot=%d in=%u<hp=%u out=%u>=%u",
+                        winnerSlot, winnerInDmg, winnerHp, winnerOutDmg, oppHp);
+                gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+                return;
+            }
         }
     }
+    if (AI_THINKING_STRUCT->movesetIndex == 0)
+        MgbaPrintf(MGBA_LOG_DEBUG, "[AI] switch C2 survives_ohkos: no branch");
     gAIScriptPtr += 6;
 }
 
@@ -2604,6 +2667,10 @@ static void Cmd_if_has_party_mon_that_outspeeds_and_outdamages(void)
     u32 i;
     u8 battlerId, opponent, battlerOnField1, battlerOnField2;
     u32 oppSpeed;
+    s32 winnerSlot = -1;
+    u32 winnerOutDmg = 0;
+    u32 winnerInDmg = 0;
+    u32 winnerSpeed = 0;
 
     battlerId  = sBattler_AI;
     opponent   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
@@ -2640,12 +2707,25 @@ static void Cmd_if_has_party_mon_that_outspeeds_and_outdamages(void)
         monSpeed = GetMonData(&party[i], MON_DATA_SPEED);
         if (monSpeed <= oppSpeed)
             continue;
-        if (AI_EstimatePartyMonDmg(&party[i], opponent) > AI_EstimateActiveDmg(opponent, &party[i]))
         {
-            gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
-            return;
+            u32 outDmg = AI_EstimatePartyMonDmg(&party[i], opponent);
+            u32 inDmg  = AI_EstimateActiveDmg(opponent, &party[i]);
+            if (outDmg > inDmg)
+            {
+                winnerSlot = i;
+                winnerOutDmg = outDmg;
+                winnerInDmg = inDmg;
+                winnerSpeed = monSpeed;
+                if (AI_THINKING_STRUCT->movesetIndex == 0)
+                    MgbaPrintf(MGBA_LOG_DEBUG, "[AI] switch branch C3 outspd_outdmg: slot=%d spd=%u>%u out=%u>in=%u",
+                        winnerSlot, winnerSpeed, oppSpeed, winnerOutDmg, winnerInDmg);
+                gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+                return;
+            }
         }
     }
+    if (AI_THINKING_STRUCT->movesetIndex == 0)
+        MgbaPrintf(MGBA_LOG_DEBUG, "[AI] switch C3 outspd_outdmg: no branch");
     gAIScriptPtr += 6;
 }
 
@@ -2657,6 +2737,10 @@ static void Cmd_if_has_party_mon_that_outdamages_while_slower(void)
     u32 i;
     u8 battlerId, opponent, battlerOnField1, battlerOnField2;
     u32 oppSpeed;
+    s32 winnerSlot = -1;
+    u32 winnerOutDmg = 0;
+    u32 winnerInDmg = 0;
+    u32 winnerSpeed = 0;
 
     battlerId  = sBattler_AI;
     opponent   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
@@ -2693,12 +2777,25 @@ static void Cmd_if_has_party_mon_that_outdamages_while_slower(void)
         monSpeed = GetMonData(&party[i], MON_DATA_SPEED);
         if (monSpeed >= oppSpeed) // Only check mons that are strictly slower
             continue;
-        if (AI_EstimatePartyMonDmg(&party[i], opponent) > AI_EstimateActiveDmg(opponent, &party[i]))
         {
-            gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
-            return;
+            u32 outDmg = AI_EstimatePartyMonDmg(&party[i], opponent);
+            u32 inDmg  = AI_EstimateActiveDmg(opponent, &party[i]);
+            if (outDmg > inDmg)
+            {
+                winnerSlot = i;
+                winnerOutDmg = outDmg;
+                winnerInDmg = inDmg;
+                winnerSpeed = monSpeed;
+                if (AI_THINKING_STRUCT->movesetIndex == 0)
+                    MgbaPrintf(MGBA_LOG_DEBUG, "[AI] switch branch C4 outdmg_slower: slot=%d spd=%u<%u out=%u>in=%u",
+                        winnerSlot, winnerSpeed, oppSpeed, winnerOutDmg, winnerInDmg);
+                gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+                return;
+            }
         }
     }
+    if (AI_THINKING_STRUCT->movesetIndex == 0)
+        MgbaPrintf(MGBA_LOG_DEBUG, "[AI] switch C4 outdmg_slower: no branch");
     gAIScriptPtr += 6;
 }
 
@@ -2710,6 +2807,8 @@ static void Cmd_if_has_party_mon_that_outspeeds(void)
     u32 i;
     u8 battlerId, opponent, battlerOnField1, battlerOnField2;
     u32 oppSpeed;
+    s32 winnerSlot = -1;
+    u32 winnerSpeed = 0;
 
     battlerId  = sBattler_AI;
     opponent   = (gAIScriptPtr[1] == AI_USER) ? sBattler_AI : gBattlerTarget;
@@ -2743,12 +2842,22 @@ static void Cmd_if_has_party_mon_that_outspeeds(void)
         monHp = GetMonData(&party[i], MON_DATA_HP);
         if (monHp == 0)
             continue;
-        if (GetMonData(&party[i], MON_DATA_SPEED) > oppSpeed)
         {
-            gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
-            return;
+            u32 monSpd = GetMonData(&party[i], MON_DATA_SPEED);
+            if (monSpd > oppSpeed)
+            {
+                winnerSlot = i;
+                winnerSpeed = monSpd;
+                if (AI_THINKING_STRUCT->movesetIndex == 0)
+                    MgbaPrintf(MGBA_LOG_DEBUG, "[AI] switch branch C5 outspeeds: slot=%d spd=%u>%u",
+                        winnerSlot, winnerSpeed, oppSpeed);
+                gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+                return;
+            }
         }
     }
+    if (AI_THINKING_STRUCT->movesetIndex == 0)
+        MgbaPrintf(MGBA_LOG_DEBUG, "[AI] switch C5 outspeeds: no branch");
     gAIScriptPtr += 6;
 }
 
