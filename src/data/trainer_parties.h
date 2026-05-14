@@ -16592,9 +16592,9 @@ static const struct TrainerMonItemCustomMoves sParty_Falkner_Hard[] = {
     {
     .iv = 31,
     .lvl = 8,
-    .species = SPECIES_SPEAROW,
+    .species = SPECIES_YANMA,
     .heldItem = ITEM_NONE,
-    .moves = {MOVE_PECK, MOVE_AERIAL_ACE, MOVE_LEER, MOVE_FURY_ATTACK}
+    .moves = {MOVE_SONIC_BOOM, MOVE_QUICK_ATTACK, MOVE_SUPERSONIC, MOVE_FORESIGHT}
     },
     {
     .iv = 31,
@@ -16608,14 +16608,14 @@ static const struct TrainerMonItemCustomMoves sParty_Falkner_Hard[] = {
     .lvl = 9,
     .species = SPECIES_ZUBAT,
     .heldItem = ITEM_NONE,
-    .moves = {MOVE_LEECH_LIFE, MOVE_SUPERSONIC, MOVE_HYPNOSIS, MOVE_BITE}
+    .moves = {MOVE_LEECH_LIFE, MOVE_ASTONISH, MOVE_HYPNOSIS, MOVE_BITE}
     },
     {
     .iv = 31,
     .lvl = 10,
-    .species = SPECIES_TAILLOW,
+    .species = SPECIES_GLIGAR,
     .heldItem = ITEM_NONE,
-    .moves = {MOVE_PECK, MOVE_GROWL, MOVE_FOCUS_ENERGY, MOVE_QUICK_ATTACK}
+    .moves = {MOVE_QUICK_ATTACK, MOVE_SAND_ATTACK, MOVE_WING_ATTACK, MOVE_DIG}
     },
     {
     .iv = 31,
@@ -16766,35 +16766,35 @@ static const struct TrainerMonItemCustomMoves sParty_Whitney_Hard[] = {
     .iv = 46,
     .lvl = 20,
     .species = SPECIES_CLEFAIRY,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_LEFTOVERS,
     .moves = {MOVE_CALM_MIND, MOVE_WATER_PULSE, MOVE_SWEET_KISS, MOVE_SECRET_POWER}
     },
     {
     .iv = 46,
     .lvl = 20,
     .species = SPECIES_PORYGON2,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_SILK_SCARF,
     .moves = {MOVE_SHOCK_WAVE, MOVE_PSYBEAM, MOVE_THUNDER_WAVE, MOVE_SWIFT}
     },
     {
     .iv = 46,
     .lvl = 20,
     .species = SPECIES_GIRAFARIG,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_TWISTED_SPOON,
     .moves = {MOVE_CONFUSION, MOVE_SWIFT, MOVE_CALM_MIND, MOVE_REFLECT}
     },
     {
     .iv = 46,
     .lvl = 20,
     .species = SPECIES_TAUROS,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_SILK_SCARF,
     .moves = {MOVE_BODY_SLAM, MOVE_SUBSTITUTE, MOVE_ROCK_TOMB, MOVE_IRON_TAIL}
     },
     {
     .iv = 46,
     .lvl = 21,
     .species = SPECIES_FARFETCHD,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_BRIGHT_POWDER,
     .moves = {MOVE_KNOCK_OFF, MOVE_AERIAL_ACE, MOVE_BODY_SLAM, MOVE_SWORDS_DANCE}
     },
     {
@@ -16953,28 +16953,28 @@ static const struct TrainerMonItemCustomMoves sParty_Pryce_Hard[] = {
     .iv = 108,
     .lvl = 32,
     .species = SPECIES_WEAVILE,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_FOCUS_BAND,
     .moves = {MOVE_IRON_TAIL, MOVE_SWORDS_DANCE, MOVE_ICE_PUNCH, MOVE_PURSUIT}
     },
     {
     .iv = 104,
     .lvl = 31,
     .species = SPECIES_JYNX,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_TWISTED_SPOON,
     .moves = {MOVE_BLIZZARD, MOVE_PSYCHIC, MOVE_LOVELY_KISS, MOVE_CALM_MIND}
     },
     {
     .iv = 104,
     .lvl = 31,
     .species = SPECIES_GLALIE,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_NEVER_MELT_ICE,
     .moves = {MOVE_BLIZZARD, MOVE_SPIKES, MOVE_TAUNT, MOVE_EXPLOSION}
     },
     {
     .iv = 108,
     .lvl = 32,
     .species = SPECIES_CLOYSTER,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_LEFTOVERS,
     .moves = {MOVE_SURF, MOVE_SPIKES, MOVE_EXPLOSION, MOVE_HIDDEN_POWER}
     },
     {
@@ -16998,28 +16998,28 @@ static const struct TrainerMonItemCustomMoves sParty_Pryce_2_Hard[] = {
     .iv = 108,
     .lvl = 34,
     .species = SPECIES_WEAVILE,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_FOCUS_BAND,
     .moves = {MOVE_IRON_TAIL, MOVE_SWORDS_DANCE, MOVE_ICE_PUNCH, MOVE_PURSUIT}
     },
     {
     .iv = 104,
     .lvl = 34,
     .species = SPECIES_JYNX,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_TWISTED_SPOON,
     .moves = {MOVE_BLIZZARD, MOVE_PSYCHIC, MOVE_LOVELY_KISS, MOVE_CALM_MIND}
     },
     {
     .iv = 104,
     .lvl = 34,
     .species = SPECIES_GLALIE,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_NEVER_MELT_ICE,
     .moves = {MOVE_BLIZZARD, MOVE_SPIKES, MOVE_TAUNT, MOVE_EXPLOSION}
     },
     {
     .iv = 108,
     .lvl = 35,
     .species = SPECIES_CLOYSTER,
-    .heldItem = ITEM_NONE,
+    .heldItem = ITEM_LEFTOVERS,
     .moves = {MOVE_SURF, MOVE_SPIKES, MOVE_EXPLOSION, MOVE_HIDDEN_POWER}
     },
     {
@@ -17057,7 +17057,7 @@ static const struct TrainerMonItemCustomMoves sParty_Pryce_3_Hard[] = {
     .iv = 104,
     .lvl = 38,
     .species = SPECIES_JYNX,
-    .heldItem = ITEM_QUICK_CLAW,
+    .heldItem = ITEM_TWISTED_SPOON,
     .moves = {MOVE_BLIZZARD, MOVE_PSYCHIC, MOVE_LOVELY_KISS, MOVE_CALM_MIND}
     },
     {

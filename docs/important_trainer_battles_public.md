@@ -11,10 +11,10 @@ This document includes all gym leader, rival, Elite Four, champion, and Team Roc
 | Order | Pokemon | Level | Held Item | Move 1 | Move 2 | Move 3 | Move 4 |
 |---|---|---:|---|---|---|---|---|
 | 1 | Pidgey | 8 | None | Aerial Ace | Sand Attack | Gust | Quick Attack |
-| 2 | Spearow | 8 | None | Peck | Aerial Ace | Leer | Fury Attack |
+| 2 | Yanma | 8 | None | Sonic Boom | Quick Attack | Supersonic | Foresight |
 | 3 | Wingull | 9 | None | Water Gun | Supersonic | Wing Attack | Quick Attack |
-| 4 | Zubat | 9 | None | Leech Life | Supersonic | Hypnosis | Bite |
-| 5 | Taillow | 10 | None | Peck | Growl | Focus Energy | Quick Attack |
+| 4 | Zubat | 9 | None | Leech Life | Astonish | Hypnosis | Bite |
+| 5 | Gligar | 10 | None | Quick Attack | Sand Attack | Wing Attack | Dig |
 | 6 | Noctowl | 11 | Sitrus Berry | Aerial Ace | Faint Attack | Hypnosis | Reflect |
 
 ### TRAINER_FALKNER_2 - FALKNER
@@ -62,11 +62,11 @@ This document includes all gym leader, rival, Elite Four, champion, and Team Roc
 
 | Order | Pokemon | Level | Held Item | Move 1 | Move 2 | Move 3 | Move 4 |
 |---|---|---:|---|---|---|---|---|
-| 1 | Clefairy | 20 | None | Calm Mind | Water Pulse | Sweet Kiss | Secret Power |
-| 2 | Porygon2 | 20 | None | Shock Wave | Psybeam | Thunder Wave | Swift |
-| 3 | Girafarig | 20 | None | Confusion | Swift | Calm Mind | Reflect |
-| 4 | Tauros | 20 | None | Body Slam | Substitute | Rock Tomb | Iron Tail |
-| 5 | Farfetchd | 21 | None | Knock Off | Aerial Ace | Body Slam | Swords Dance |
+| 1 | Clefairy | 20 | Leftovers | Calm Mind | Water Pulse | Sweet Kiss | Secret Power |
+| 2 | Porygon2 | 20 | Silk Scarf | Shock Wave | Psybeam | Thunder Wave | Swift |
+| 3 | Girafarig | 20 | Twisted Spoon | Confusion | Swift | Calm Mind | Reflect |
+| 4 | Tauros | 20 | Silk Scarf | Body Slam | Substitute | Rock Tomb | Iron Tail |
+| 5 | Farfetchd | 21 | Bright Powder | Knock Off | Aerial Ace | Body Slam | Swords Dance |
 | 6 | Miltank | 21 | Sitrus Berry | Rollout | Attract | Stomp | Milk Drink |
 
 ### TRAINER_WHITNEY_2 - WHITNEY
@@ -115,10 +115,10 @@ This document includes all gym leader, rival, Elite Four, champion, and Team Roc
 | Order | Pokemon | Level | Held Item | Move 1 | Move 2 | Move 3 | Move 4 |
 |---|---|---:|---|---|---|---|---|
 | 1 | Dewgong | 31 | Leftovers | Surf | Blizzard | Sleep Talk | Rest |
-| 2 | Weavile | 32 | None | Iron Tail | Swords Dance | Ice Punch | Pursuit |
-| 3 | Jynx | 31 | None | Blizzard | Psychic | Lovely Kiss | Calm Mind |
-| 4 | Glalie | 31 | None | Blizzard | Spikes | Taunt | Explosion |
-| 5 | Cloyster | 32 | None | Surf | Spikes | Explosion | Hidden Power |
+| 2 | Weavile | 32 | Focus Band | Iron Tail | Swords Dance | Ice Punch | Pursuit |
+| 3 | Jynx | 31 | Twisted Spoon | Blizzard | Psychic | Lovely Kiss | Calm Mind |
+| 4 | Glalie | 31 | Never Melt Ice | Blizzard | Spikes | Taunt | Explosion |
+| 5 | Cloyster | 32 | Leftovers | Surf | Spikes | Explosion | Hidden Power |
 | 6 | Mamoswine | 33 | Sitrus Berry | Body Slam | Earthquake | Ice Ball | Rock Slide |
 
 ### TRAINER_PRYCE_2 - PRYCE
@@ -141,10 +141,10 @@ This document includes all gym leader, rival, Elite Four, champion, and Team Roc
 | Order | Pokemon | Level | Held Item | Move 1 | Move 2 | Move 3 | Move 4 |
 |---|---|---:|---|---|---|---|---|
 | 1 | Dewgong | 33 | Leftovers | Surf | Blizzard | Sleep Talk | Rest |
-| 2 | Weavile | 34 | None | Iron Tail | Swords Dance | Ice Punch | Pursuit |
-| 3 | Jynx | 34 | None | Blizzard | Psychic | Lovely Kiss | Calm Mind |
-| 4 | Glalie | 34 | None | Blizzard | Spikes | Taunt | Explosion |
-| 5 | Cloyster | 35 | None | Surf | Spikes | Explosion | Hidden Power |
+| 2 | Weavile | 34 | Focus Band | Iron Tail | Swords Dance | Ice Punch | Pursuit |
+| 3 | Jynx | 34 | Twisted Spoon | Blizzard | Psychic | Lovely Kiss | Calm Mind |
+| 4 | Glalie | 34 | Never Melt Ice | Blizzard | Spikes | Taunt | Explosion |
+| 5 | Cloyster | 35 | Leftovers | Surf | Spikes | Explosion | Hidden Power |
 | 6 | Mamoswine | 35 | Sitrus Berry | Body Slam | Earthquake | Ice Ball | Rock Slide |
 
 ### TRAINER_PRYCE_1_3 - PRYCE
@@ -156,7 +156,7 @@ This document includes all gym leader, rival, Elite Four, champion, and Team Roc
 | 1 | Glalie | 38 | Never Melt Ice | Blizzard | Spikes | Taunt | Explosion |
 | 2 | Dewgong | 38 | Leftovers | Surf | Blizzard | Sleep Talk | Rest |
 | 3 | Weavile | 38 | Never Melt Ice | Iron Tail | Swords Dance | Ice Punch | Pursuit |
-| 4 | Jynx | 38 | Quick Claw | Blizzard | Psychic | Lovely Kiss | Calm Mind |
+| 4 | Jynx | 38 | Twisted Spoon | Blizzard | Psychic | Lovely Kiss | Calm Mind |
 | 5 | Cloyster | 38 | Leftovers | Surf | Spikes | Explosion | Hidden Power |
 | 6 | Mamoswine | 38 | Sitrus Berry | Body Slam | Earthquake | Ice Ball | Rock Slide |
 
