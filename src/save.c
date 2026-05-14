@@ -936,7 +936,7 @@ u8 LoadGameSave(u8 saveType)
         FlagSet(FLAG_HIDE_OLIVINE_PORT_OAK);
         FlagSet(FLAG_HIDE_ROUTE22_GIOVANNI_SILVER);
         FlagSet(FLAG_HIDE_MTMOON_JIRACHI);
-        FlagSet(FLAG_UNUSED_SET4);
+        FlagSet(FLAG_HIDE_HALLOFFAME_BLUE);
         FlagSet(FLAG_UNUSED_SET5);
         FlagSet(FLAG_UNUSED_SET6);
         FlagSet(FLAG_UNUSED_SET7);

@@ -34,6 +34,7 @@ PokemonLeague_HallOfFame_EventScript_Cutscene::
 	end
 
 PokemonLeague_HallOfFame_EventScript_CutsceneKantoChamp::
+	showobjectat LOCALID_HALLOFFAME_BLUE, MAP_POKEMON_LEAGUE_HALL_OF_FAME
 	applymovement LOCALID_HALLOFFAME_BLUE, PokemonLeague_HallOfFame_Movement_BlueEnter
 	applymovement OBJ_EVENT_ID_PLAYER, PokemonLeague_HallOfFame_Movement_PlayerEnter
 	waitmovement OBJ_EVENT_ID_PLAYER
