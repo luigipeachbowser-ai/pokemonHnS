@@ -1,4 +1,4 @@
-.set LOCALID_SPROUT_TOWER_SILVER, 5
+.set LOCALID_SPROUT_TOWER_SILVER, 4
 
 SproutTower_3F_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, SproutTower_3F_OnTransition
