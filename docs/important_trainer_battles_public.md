@@ -394,19 +394,6 @@ This document includes all gym leader, rival, Elite Four, champion, and Team Roc
 | 5 | Tyranitar | 68 | White Herb | Dragon Pulse | Dark Pulse | Focus Blast | Hyper Beam |
 | 6 | Arcanine | 69 | Silk Scarf | Flamethrower | Curse | Crunch | Extreme Speed |
 
-### TRAINER_BLUE_2 - BLUE
-
-- Location: TBD
-
-| Order | Pokemon | Level | Held Item | Move 1 | Move 2 | Move 3 | Move 4 |
-|---|---|---:|---|---|---|---|---|
-| 1 | Articuno | 69 | Sitrus Berry | Ice Beam | Air Slash | Rest | Toxic |
-| 2 | Alakazam | 68 | Twisted Spoon | Thunderbolt | Recover | Psychic | Shadow Ball |
-| 3 | Rhyperior | 67 | Quick Claw | Earthquake | Rock Blast | Megahorn | Substitute |
-| 4 | Exeggutor | 68 | Leftovers | Leech Seed | Sleep Powder | Psychic | Giga Drain |
-| 5 | Gyarados | 68 | Focus Band | Waterfall | Earthquake | Body Slam | Dragon Dance |
-| 6 | Arcanine | 69 | Silk Scarf | Flamethrower | Curse | Crunch | Extreme Speed |
-
 ## Rival Battles
 
 ### TRAINER_RIVAL_CHIKORITA_1 - ???
