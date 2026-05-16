@@ -16615,7 +16615,7 @@ static const struct TrainerMonItemCustomMoves sParty_Falkner_Hard[] = {
     .lvl = 10,
     .species = SPECIES_GLIGAR,
     .heldItem = ITEM_NONE,
-    .moves = {MOVE_QUICK_ATTACK, MOVE_SAND_ATTACK, MOVE_WING_ATTACK, MOVE_DIG}
+    .moves = {MOVE_QUICK_ATTACK, MOVE_SAND_ATTACK, MOVE_WING_ATTACK, MOVE_MUD_SLAP}
     },
     {
     .iv = 31,

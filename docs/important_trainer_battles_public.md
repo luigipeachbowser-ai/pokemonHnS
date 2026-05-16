@@ -14,7 +14,7 @@ This document includes all gym leader, rival, Elite Four, champion, and Team Roc
 | 2 | Yanma | 8 | None | Sonic Boom | Quick Attack | Supersonic | Foresight |
 | 3 | Wingull | 9 | None | Water Gun | Supersonic | Wing Attack | Quick Attack |
 | 4 | Zubat | 9 | None | Leech Life | Astonish | Hypnosis | Bite |
-| 5 | Gligar | 10 | None | Quick Attack | Sand Attack | Wing Attack | Dig |
+| 5 | Gligar | 10 | None | Quick Attack | Sand Attack | Wing Attack | Mud Slap |
 | 6 | Noctowl | 11 | Sitrus Berry | Aerial Ace | Faint Attack | Hypnosis | Reflect |
 
 ### TRAINER_FALKNER_2 - FALKNER
@@ -660,6 +660,21 @@ This document includes all gym leader, rival, Elite Four, champion, and Team Roc
 | 4 | Houndoom | 76 | Charcoal | Fire Blast | Iron Tail | Crunch | Double Team |
 | 5 | Feraligatr | 76 | Scope Lens | Ice Beam | Surf | Slash | Earthquake |
 | 6 | Tyranitar | 76 | Quick Claw | Crunch | Earthquake | Rock Slide | Fire Blast |
+
+## Notable Story Battles
+
+### TRAINER_EUSINE - EUSINE
+
+- Location: BurnedTower 1F ?
+
+| Order | Pokemon | Level | Held Item | Move 1 | Move 2 | Move 3 | Move 4 |
+|---|---|---:|---|---|---|---|---|
+| 1 | Politoed | 27 | None | Surf | Rain Dance | Hypnosis | Icy Wind |
+| 2 | Hypno | 27 | None | Hypnosis | Disable | Psychic | Dream Eater |
+| 3 | Electrode | 27 | None | Thunder Wave | Sonic Boom | Body Slam | Thunderbolt |
+| 4 | Jynx | 29 | None | Psychic | Ice Punch | Lovely Kiss | Light Screen |
+| 5 | Gengar | 29 | None | Shadow Ball | Psychic | Thunderbolt | Sludge Bomb |
+| 6 | Alakazam | 31 | None | Psychic | Thunderbolt | Shadow Ball | Recover |
 
 ## Elite Four
 
